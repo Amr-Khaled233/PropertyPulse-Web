@@ -1,0 +1,21 @@
+# Supabase local configuration.
+# Run `supabase init` then `supabase start` to use the local stack.
+
+project_id = "propertypulse"
+
+[api]
+port = 54321
+schemas = ["public", "storage"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+major_version = 15
+
+[studio]
+port = 54323
+
+[auth]
+enable_signup = true
+site_url = "http://localhost:5173"
