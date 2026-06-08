@@ -26,6 +26,17 @@ export const reportRepository = {
     return data ? toReport(data as ReportRow) : null;
   },
 
+  /** Count a user's reports generated on/after the given ISO timestamp. */
+  async countSince(userId: string, sinceISO: string): Promise<number> {
+    const { count, error } = await supabase
+      .from('investment_reports')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .gte('generated_at', sinceISO);
+    if (error) throw new ApiError(500, 'REPORT_COUNT_FAILED', error.message);
+    return count ?? 0;
+  },
+
   async listForUser(userId: string): Promise<InvestmentReport[]> {
     const { data, error } = await supabase
       .from('investment_reports')

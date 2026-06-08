@@ -11,6 +11,12 @@ export const propertyController = {
     paginated(res, result);
   }),
 
+  towns: asyncHandler(async (req, res) => {
+    const city = typeof req.query.city === 'string' ? req.query.city : undefined;
+    const towns = await propertyService.listTowns(city);
+    ok(res, towns);
+  }),
+
   getById: asyncHandler(async (req, res) => {
     const property = await propertyService.getById(req.params.id);
     ok(res, property);

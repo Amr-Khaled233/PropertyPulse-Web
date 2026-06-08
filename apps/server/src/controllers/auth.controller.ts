@@ -18,7 +18,8 @@ export const authController = {
 
   me: asyncHandler(async (req, res) => {
     if (!req.user) throw ApiError.unauthorized();
-    const profile = await authService.getProfile(req.user.id);
+    // Auto-provisions a profile for OAuth (Google) users on first request.
+    const profile = await authService.getOrCreateProfile(req.user);
     ok(res, profile);
   }),
 };

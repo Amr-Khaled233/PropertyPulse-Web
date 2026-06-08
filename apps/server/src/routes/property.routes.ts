@@ -9,5 +9,6 @@ import { propertySearchSchema, createPropertySchema } from '../validators/proper
 export const propertyRouter = Router();
 
 propertyRouter.get('/', validate(propertySearchSchema, 'query'), propertyController.search);
+propertyRouter.get('/towns', propertyController.towns); // literal route — must precede '/:id'
 propertyRouter.get('/:id', propertyController.getById);
 propertyRouter.post('/', requireAuth, validate(createPropertySchema), propertyController.create);

@@ -18,6 +18,11 @@ export const requireAuth: RequestHandler = asyncHandler(async (req, _res, next) 
     throw ApiError.unauthorized('Invalid or expired token');
   }
 
-  req.user = { id: data.user.id, email: data.user.email };
+  const meta = (data.user.user_metadata ?? {}) as { full_name?: string; name?: string };
+  req.user = {
+    id: data.user.id,
+    email: data.user.email,
+    fullName: meta.full_name ?? meta.name,
+  };
   next();
 });

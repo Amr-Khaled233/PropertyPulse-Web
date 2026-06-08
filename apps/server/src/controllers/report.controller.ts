@@ -12,6 +12,7 @@ export const reportController = {
       userId: req.user.id,
       propertyId: req.body.propertyId,
       assumptions: req.body.assumptions,
+      lang: req.body.lang,
     });
     created(res, report);
   }),

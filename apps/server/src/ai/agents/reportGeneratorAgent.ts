@@ -24,9 +24,11 @@ export async function generateReport(params: {
   property: Property;
   metrics: InvestmentMetrics;
   market: MarketContext;
+  lang?: 'en' | 'ar';
 }): Promise<GeneratedReport> {
-  const { property, metrics, market } = params;
-  const context = market.retrieval.context;
+  const { property, metrics, market, lang } = params;
+  // Ground the LLM in real comparable-listing data first, then any RAG context.
+  const context = [market.dataContext, market.retrieval.context].filter(Boolean).join('\n\n');
 
   // 1) Assess risk (structured) using the dedicated prompt.
   const riskPrompt = buildRiskAssessmentPrompt({ property, metrics, context });
@@ -36,7 +38,7 @@ export async function generateReport(params: {
   });
 
   // 2) Generate the narrative + recommendation grounded in metrics + risk + context.
-  const reportPrompt = buildInvestmentReportPrompt({ property, metrics, risk, context });
+  const reportPrompt = buildInvestmentReportPrompt({ property, metrics, risk, context, lang });
   const narrative = await geminiClient.generateJSON<NarrativeResponse>(reportPrompt.user, {
     system: reportPrompt.system,
     temperature: 0.4,

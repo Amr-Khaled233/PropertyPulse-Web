@@ -16,6 +16,7 @@ export interface AnalysisInput {
   property: Property;
   userId: string;
   assumptions?: AssumptionOverrides;
+  lang?: 'en' | 'ar';
 }
 
 /** The report payload without the DB-generated id/timestamp. */
@@ -33,7 +34,7 @@ export async function runAnalysisPipeline(input: AnalysisInput): Promise<Analysi
   const { assumptions, metrics } = calculateMetrics(property, input.assumptions);
   logger.debug({ propertyId: property.id }, 'Pipeline: metrics computed');
 
-  const generated = await generateReport({ property, metrics, market });
+  const generated = await generateReport({ property, metrics, market, lang: input.lang });
   logger.debug({ propertyId: property.id }, 'Pipeline: report generated');
 
   return {

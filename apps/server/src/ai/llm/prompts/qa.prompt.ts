@@ -8,6 +8,7 @@ export interface QaPromptInput {
   question: string;
   context: string;
   history?: ChatMessage[];
+  lang?: 'en' | 'ar';
 }
 
 export interface QaPromptOutput {
@@ -16,12 +17,23 @@ export interface QaPromptOutput {
 }
 
 export function buildQaPrompt(input: QaPromptInput): QaPromptOutput {
-  const { question, context, history = [] } = input;
+  const { question, context, history = [], lang } = input;
+
+  const langLine =
+    lang === 'ar'
+      ? 'IMPORTANT: Write your entire answer in Arabic.'
+      : lang === 'en'
+        ? 'IMPORTANT: Write your entire answer in English.'
+        : "Reply in the user's language (Arabic or English).";
 
   const system = [
-    'You are PropertyPulse, a helpful real-estate investment assistant.',
-    'Answer using ONLY the provided context. If the context is insufficient, say so honestly.',
-    'Cite the bracketed source numbers (e.g. [1]) when you use a fact. Keep answers concise.',
+    'You are PropertyPulse, an expert real-estate investment advisor for the Cairo & Giza (Egypt) market.',
+    'You are given LIVE CONTEXT with real platform data: dataset overview, market trends and sample listings (prices in EGP).',
+    'Ground your answer in that live data first — quote concrete figures (prices, yields, areas, locations) from it when relevant.',
+    'You may also apply general real-estate reasoning to interpret the data and give practical guidance.',
+    'Never reply that there is "no context" — the live data above is always available. If a specific number is missing, give a best estimate and label it as an estimate.',
+    'Be concise, concrete and practical. Use short paragraphs or bullets.',
+    langLine,
   ].join(' ');
 
   const historyText = history
@@ -29,8 +41,8 @@ export function buildQaPrompt(input: QaPromptInput): QaPromptOutput {
     .join('\n');
 
   const user = `
-${historyText ? `CONVERSATION SO FAR\n${historyText}\n\n` : ''}CONTEXT
-${context || 'No context retrieved.'}
+${historyText ? `CONVERSATION SO FAR\n${historyText}\n\n` : ''}LIVE CONTEXT
+${context || '(no live data available)'}
 
 QUESTION
 ${question}`.trim();

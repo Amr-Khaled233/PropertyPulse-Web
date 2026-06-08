@@ -47,3 +47,6 @@ supabase/.temp
 
 # Testing
 coverage/
+
+# Large raw dataset (loaded into Supabase via import script; keep local only)
+supabase/data/*.csv

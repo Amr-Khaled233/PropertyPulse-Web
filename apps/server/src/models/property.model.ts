@@ -23,6 +23,9 @@ export interface PropertyRow {
   images: string[] | null;
   description: string | null;
   source: string | null;
+  featured: boolean | null;
+  approved: boolean | null;
+  agent_name: string | null;
   neighborhood_id: string | null;
   created_at: string;
   updated_at: string;
@@ -51,6 +54,9 @@ export function toProperty(row: PropertyRow): Property {
     images: row.images ?? [],
     description: row.description ?? undefined,
     source: row.source ?? undefined,
+    featured: row.featured ?? false,
+    approved: row.approved ?? true,
+    agentName: row.agent_name ?? undefined,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -77,5 +83,34 @@ export function toPropertyInsert(p: Omit<Property, 'id' | 'createdAt' | 'updated
     images: p.images,
     description: p.description ?? null,
     source: p.source ?? null,
+    featured: p.featured ?? false,
+    approved: p.approved ?? true,
+    agent_name: p.agentName ?? null,
   };
+}
+
+/** Map a partial domain patch to a snake_case row update (admin edits). */
+export function toPropertyUpdate(p: Partial<Property>): Record<string, unknown> {
+  const row: Record<string, unknown> = {};
+  if (p.title !== undefined) row.title = p.title;
+  if (p.type !== undefined) row.type = p.type;
+  if (p.status !== undefined) row.status = p.status;
+  if (p.price !== undefined) row.price = p.price;
+  if (p.currency !== undefined) row.currency = p.currency;
+  if (p.areaSqm !== undefined) row.area_sqm = p.areaSqm;
+  if (p.bedrooms !== undefined) row.bedrooms = p.bedrooms;
+  if (p.bathrooms !== undefined) row.bathrooms = p.bathrooms;
+  if (p.yearBuilt !== undefined) row.year_built = p.yearBuilt;
+  if (p.featured !== undefined) row.featured = p.featured;
+  if (p.approved !== undefined) row.approved = p.approved;
+  if (p.agentName !== undefined) row.agent_name = p.agentName;
+  if (p.description !== undefined) row.description = p.description;
+  if (p.address !== undefined) {
+    if (p.address.line1 !== undefined) row.address_line1 = p.address.line1;
+    if (p.address.city !== undefined) row.city = p.address.city;
+    if (p.address.state !== undefined) row.state = p.address.state;
+    if (p.address.country !== undefined) row.country = p.address.country;
+  }
+  row.updated_at = new Date().toISOString();
+  return row;
 }

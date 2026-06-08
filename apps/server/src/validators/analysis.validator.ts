@@ -28,6 +28,7 @@ export const compareSchema = z.object({
 export const generateReportSchema = z.object({
   propertyId: z.string().uuid(),
   assumptions: assumptionsSchema,
+  lang: z.enum(['en', 'ar']).optional(),
 });
 
 export const askSchema = z.object({
@@ -35,4 +36,5 @@ export const askSchema = z.object({
   history: z
     .array(z.object({ role: z.enum(['user', 'assistant', 'system']), content: z.string() }))
     .optional(),
+  lang: z.enum(['en', 'ar']).optional(),
 });

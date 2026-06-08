@@ -1,6 +1,6 @@
 // Auth service — registration, login and profile lookup via Supabase Auth.
 
-import { supabase } from '../config/supabase.js';
+import { supabase, supabaseAuth } from '../config/supabase.js';
 import { userRepository } from '../repositories/user.repository.js';
 import { ApiError } from '../utils/apiError.js';
 import type { UserProfile } from '@propertypulse/shared-types';
@@ -29,7 +29,7 @@ export const authService = {
   },
 
   async login(input: { email: string; password: string }): Promise<AuthResult> {
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabaseAuth.auth.signInWithPassword({
       email: input.email,
       password: input.password,
     });
@@ -48,9 +48,15 @@ export const authService = {
     };
   },
 
-  async getProfile(userId: string): Promise<UserProfile> {
-    const profile = await userRepository.getById(userId);
-    if (!profile) throw ApiError.notFound('Profile not found');
-    return profile;
+  /** Return the profile, creating it on first sight (e.g. Google OAuth users
+   *  who never went through /auth/register). */
+  async getOrCreateProfile(user: { id: string; email?: string; fullName?: string }): Promise<UserProfile> {
+    const existing = await userRepository.getById(user.id);
+    if (existing) return existing;
+    return userRepository.upsert({
+      id: user.id,
+      email: user.email ?? '',
+      fullName: user.fullName,
+    });
   },
 };

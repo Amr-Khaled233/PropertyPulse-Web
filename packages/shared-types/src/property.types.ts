@@ -33,6 +33,10 @@ export interface Property {
   images: string[];
   description?: string;
   source?: string;
+  /** Admin moderation / merchandising fields. */
+  featured?: boolean;
+  approved?: boolean;
+  agentName?: string;
   createdAt: string;
   updatedAt: string;
 }

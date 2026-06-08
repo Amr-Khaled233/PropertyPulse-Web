@@ -7,6 +7,7 @@ const listingStatus = z.enum(['for_sale', 'for_rent', 'sold', 'off_market']);
 
 export const propertySearchSchema = z.object({
   city: z.string().optional(),
+  district: z.string().optional(),
   type: propertyType.optional(),
   minPrice: z.coerce.number().nonnegative().optional(),
   maxPrice: z.coerce.number().nonnegative().optional(),
@@ -38,5 +39,31 @@ export const createPropertySchema = z.object({
   source: z.string().optional(),
 });
 
+// Partial update used by the admin panel (edit / moderate / feature a listing).
+export const updatePropertySchema = z.object({
+  title: z.string().min(1).optional(),
+  type: propertyType.optional(),
+  status: listingStatus.optional(),
+  price: z.number().positive().optional(),
+  currency: z.string().optional(),
+  areaSqm: z.number().positive().optional(),
+  bedrooms: z.number().int().nonnegative().optional(),
+  bathrooms: z.number().int().nonnegative().optional(),
+  yearBuilt: z.number().int().optional(),
+  featured: z.boolean().optional(),
+  approved: z.boolean().optional(),
+  agentName: z.string().optional(),
+  description: z.string().optional(),
+  address: z
+    .object({
+      line1: z.string().optional(),
+      city: z.string().optional(),
+      state: z.string().optional(),
+      country: z.string().optional(),
+    })
+    .optional(),
+});
+
 export type PropertySearchInput = z.infer<typeof propertySearchSchema>;
 export type CreatePropertyInput = z.infer<typeof createPropertySchema>;
+export type UpdatePropertyInput = z.infer<typeof updatePropertySchema>;

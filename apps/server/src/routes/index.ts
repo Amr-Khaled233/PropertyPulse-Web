@@ -7,6 +7,9 @@ import { analysisRouter } from './analysis.routes.js';
 import { reportRouter } from './report.routes.js';
 import { watchlistRouter } from './watchlist.routes.js';
 import { chatRouter } from './chat.routes.js';
+import { paymentRouter } from './payment.routes.js';
+import { adminRouter } from './admin.routes.js';
+import { inquiryRouter } from './inquiry.routes.js';
 
 export const apiRouter = Router();
 
@@ -16,3 +19,6 @@ apiRouter.use('/analysis', analysisRouter);
 apiRouter.use('/reports', reportRouter);
 apiRouter.use('/watchlist', watchlistRouter);
 apiRouter.use('/chat', chatRouter);
+apiRouter.use('/payments', paymentRouter);
+apiRouter.use('/admin', adminRouter);
+apiRouter.use('/inquiries', inquiryRouter);

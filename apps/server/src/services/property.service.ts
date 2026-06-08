@@ -9,6 +9,10 @@ export const propertyService = {
     return propertyRepository.search(filters);
   },
 
+  listTowns(city?: string): Promise<string[]> {
+    return propertyRepository.listTowns(city);
+  },
+
   async getById(id: string): Promise<Property> {
     const property = await propertyRepository.getById(id);
     if (!property) throw ApiError.notFound('Property not found');

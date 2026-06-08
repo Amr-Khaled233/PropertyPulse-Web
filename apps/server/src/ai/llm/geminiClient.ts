@@ -22,6 +22,25 @@ function toGenerationConfig(opts: GenerationOptions): GenerationConfig {
   };
 }
 
+/** Retry transient Gemini failures (503 overload / 429 rate-limit) with backoff. */
+async function withRetry<T>(fn: () => Promise<T>, attempts = 3): Promise<T> {
+  let lastErr: unknown;
+  for (let i = 0; i < attempts; i++) {
+    try {
+      return await fn();
+    } catch (err) {
+      lastErr = err;
+      const msg = err instanceof Error ? err.message : String(err);
+      const transient = /\[(503|429|500)|overload|high demand|rate limit|unavailable/i.test(msg);
+      if (!transient || i === attempts - 1) throw err;
+      const delay = 800 * 2 ** i + Math.floor(Math.random() * 400);
+      logger.warn({ attempt: i + 1, delay }, 'Gemini transient error — retrying');
+      await new Promise((r) => setTimeout(r, delay));
+    }
+  }
+  throw lastErr;
+}
+
 class GeminiClient implements LlmClient {
   async generate(prompt: string, opts: GenerationOptions = {}): Promise<string> {
     const model = genAI.getGenerativeModel({
@@ -30,7 +49,7 @@ class GeminiClient implements LlmClient {
       generationConfig: toGenerationConfig(opts),
     });
 
-    const result = await model.generateContent(prompt);
+    const result = await withRetry(() => model.generateContent(prompt));
     return result.response.text();
   }
 
@@ -63,7 +82,7 @@ class GeminiClient implements LlmClient {
   /** Produce an embedding vector for a single piece of text. */
   async embed(text: string): Promise<EmbeddingVector> {
     const model = genAI.getGenerativeModel({ model: env.GEMINI_EMBEDDING_MODEL });
-    const result = await model.embedContent(text);
+    const result = await withRetry(() => model.embedContent(text));
     return result.embedding.values;
   }
 }

@@ -9,6 +9,7 @@ export interface InvestmentReportPromptInput {
   metrics: InvestmentMetrics;
   risk: RiskAssessment;
   context: string;
+  lang?: 'en' | 'ar';
 }
 
 export interface InvestmentReportPromptOutput {
@@ -19,13 +20,16 @@ export interface InvestmentReportPromptOutput {
 export function buildInvestmentReportPrompt(
   input: InvestmentReportPromptInput,
 ): InvestmentReportPromptOutput {
-  const { property, metrics, risk, context } = input;
+  const { property, metrics, risk, context, lang } = input;
 
   const system = [
     'You are PropertyPulse, an expert real-estate investment analyst.',
     'Write a clear, data-driven and trustworthy assessment for an individual investor.',
     'Base every claim ONLY on the provided metrics, risk assessment and retrieved context.',
     'Do not invent numbers. Be concise and explainable.',
+    lang === 'ar'
+      ? 'Write the "summary" text in Arabic (keep the recommendation enum value in English).'
+      : 'Write the "summary" text in English.',
     'Respond ONLY with JSON matching: ',
     '{ "summary": string, "recommendation": "buy" | "hold" | "avoid", "confidence": number (0-1) }',
   ].join(' ');
