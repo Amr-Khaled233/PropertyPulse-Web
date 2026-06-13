@@ -1,5 +1,3 @@
-// Property listing routes (search, get, create).
-
 import { Router } from 'express';
 import { propertyController } from '../controllers/property.controller.js';
 import { requireAuth } from '../middleware/auth.middleware.js';
