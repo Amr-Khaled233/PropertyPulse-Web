@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { propertyService } from '../services/api/propertyService';
+import { marketService } from '../services/api/marketService';
 import { useDebounce } from '../hooks/useDebounce';
 import { QUERY_KEYS } from '../utils/constants';
 import type { PropertySearchParams } from '../types';
@@ -25,6 +26,16 @@ export function usePropertySearchViewModel() {
     queryFn: () => propertyService.getTowns(filters.city || undefined),
     staleTime: 10 * 60_000,
   });
+
+  // Only offer property types that actually exist in the dataset.
+  const marketQuery = useQuery({
+    queryKey: ['market', 'overview'],
+    queryFn: () => marketService.overview(),
+    staleTime: 10 * 60_000,
+  });
+  const availableTypes = (marketQuery.data?.byType ?? [])
+    .filter((t) => t.count > 0)
+    .map((t) => t.type);
 
   function update(patch: Partial<PropertySearchParams>) {
     setFilters((f) => {
@@ -49,6 +60,7 @@ export function usePropertySearchViewModel() {
     reset,
     setPage,
     towns: townsQuery.data ?? [],
+    availableTypes,
     loading: query.isLoading,
     isFetching: query.isFetching,
     properties: query.data?.items ?? [],

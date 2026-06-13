@@ -30,29 +30,47 @@ export function LandingPage() {
 
       {/* Hero */}
       <section className="hero" style={{ marginTop: 8 }}>
-        <span className="eyebrow" style={{ color: 'var(--green)' }}>{t('landing.heroPre')}</span>
-        <h1 style={{ marginTop: 14 }}>
-          {t('landing.heroTitle')} <span className="serif italic accent">{t('landing.heroHighlight')}</span>
-        </h1>
-        <p>{t('landing.heroSub')}</p>
-        <div className="row wrap" style={{ gap: 12, marginTop: 24 }}>
-          <Link to={ROUTES.register} className="btn btn-green btn-lg">{t('landing.startAnalysis')}</Link>
-          <Link to={ROUTES.dashboard} className="btn btn-on-dark btn-lg">{t('landing.viewDemo')}</Link>
+        <div className="hero-content">
+          <span className="eyebrow" style={{ color: 'var(--green)' }}>{t('landing.heroPre')}</span>
+          <h1 style={{ marginTop: 14 }}>
+            {t('landing.heroTitle')} <span className="serif italic accent">{t('landing.heroHighlight')}</span>
+          </h1>
+          <p>{t('landing.heroSub')}</p>
+          <div className="row wrap" style={{ gap: 12, marginTop: 24 }}>
+            <Link to={ROUTES.register} className="btn btn-green btn-lg">{t('landing.startAnalysis')}</Link>
+            <Link to={ROUTES.register} className="btn btn-on-dark btn-lg">{t('landing.viewDemo')}</Link>
+          </div>
         </div>
 
-        <div
-          className="card"
-          style={{ position: 'absolute', top: 40, insetInlineEnd: 40, width: 220, padding: 18 }}
-        >
-          <div className="between">
-            <div>
-              <div style={{ fontWeight: 600 }}>Skyline Heights</div>
-              <div className="muted" style={{ fontSize: '0.78rem' }}>New Cairo</div>
+        <div className="hero-visual">
+          <div className="card hero-card">
+            <div className="between">
+              <div>
+                <div style={{ fontWeight: 600 }}>Skyline Heights</div>
+                <div className="muted" style={{ fontSize: '0.78rem' }}>New Cairo</div>
+              </div>
+              <span className="badge badge-green">9.4</span>
             </div>
-            <span className="badge badge-green">9.4</span>
+            <div className="muted" style={{ fontSize: '0.78rem', marginTop: 10 }}>High Growth Probability</div>
+            <div className="meter" style={{ marginTop: 6 }}><span style={{ width: '88%' }} /></div>
           </div>
-          <div className="muted" style={{ fontSize: '0.78rem', marginTop: 10 }}>High Growth Probability</div>
-          <div className="meter" style={{ marginTop: 6 }}><span style={{ width: '88%' }} /></div>
+
+          <div className="card hero-card">
+            <div className="between">
+              <div style={{ fontWeight: 600 }}>Market Pulse</div>
+              <span className="badge badge-soft">Live</span>
+            </div>
+            <div className="row" style={{ gap: 18, marginTop: 12 }}>
+              <div>
+                <div className="accent serif" style={{ fontSize: '1.3rem', fontWeight: 700 }}>+26%</div>
+                <div className="muted" style={{ fontSize: '0.72rem' }}>Price index</div>
+              </div>
+              <div>
+                <div className="accent serif" style={{ fontSize: '1.3rem', fontWeight: 700 }}>14.9K</div>
+                <div className="muted" style={{ fontSize: '0.72rem' }}>Listings</div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 

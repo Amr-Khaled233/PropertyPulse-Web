@@ -8,6 +8,10 @@ export {
   netRentalYield,
   capRate,
   computeInvestmentMetrics,
+  deriveRecommendation,
+  estimateMonthlyRent,
+  RENT_PER_SQM_BY_TYPE,
+  type Recommendation,
 } from './financial';
 
 export { formatCurrency, formatPercent, formatArea, formatDate } from './formatters';

@@ -13,14 +13,24 @@ export interface MarketContext {
   retrieval: RetrievalResult;
   /** Grounding text built from real comparable listings in the dataset. */
   dataContext: string;
+  /** Subject price/m² vs comparable average (+ = pricier than comps). */
+  pricePositionPct: number;
 }
 
-/** Summarise real comparable listings (same area/type) into prompt context. */
-function buildComparablesText(subject: Property, comps: Property[]): string {
-  if (!comps.length) return '';
+function median(arr: number[]): number {
+  if (!arr.length) return 0;
+  const s = [...arr].sort((a, b) => a - b);
+  const m = Math.floor(s.length / 2);
+  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
+}
+
+/** Summarise real comparable listings (same area/type) into prompt context.
+ *  Uses the MEDIAN price/m² (robust to luxury outliers) as the benchmark. */
+function buildComparables(subject: Property, comps: Property[]): { text: string; pricePositionPct: number } {
+  if (!comps.length) return { text: '', pricePositionPct: 0 };
   const ppsm = (p: Property) => (p.areaSqm ? p.price / p.areaSqm : 0);
   const values = comps.map(ppsm).filter((v) => v > 0);
-  const avg = values.length ? values.reduce((a, b) => a + b, 0) / values.length : 0;
+  const avg = median(values);
   const subjectPpsm = ppsm(subject);
   const delta = avg ? ((subjectPpsm - avg) / avg) * 100 : 0;
 
@@ -32,12 +42,14 @@ function buildComparablesText(subject: Property, comps: Property[]): string {
     )
     .join('\n');
 
-  return [
+  const text = [
     `COMPARABLE LISTINGS (real platform data — same city & type)`,
-    `Subject price/m²: ${formatCurrency(Math.round(subjectPpsm), subject.currency)}. Area average price/m²: ${formatCurrency(Math.round(avg), subject.currency)} across ${comps.length} comps.`,
+    `Subject price/m²: ${formatCurrency(Math.round(subjectPpsm), subject.currency)}. Area median price/m²: ${formatCurrency(Math.round(avg), subject.currency)} across ${comps.length} comps.`,
     `The subject is ${delta >= 0 ? 'ABOVE' : 'BELOW'} the comparable average by ${Math.abs(delta).toFixed(1)}%.`,
     lines,
   ].join('\n');
+
+  return { text, pricePositionPct: delta };
 }
 
 export async function collectMarketData(property: Property): Promise<MarketContext> {
@@ -48,10 +60,11 @@ export async function collectMarketData(property: Property): Promise<MarketConte
     marketRepository.getTrends(property.address.city, property.type),
     marketRepository.getNeighborhood(property.address.city),
     propertyRepository.findComparables(
-      { city: property.address.city, type: property.type, excludeId: property.id },
-      10,
+      { city: property.address.city, district: property.address.state, type: property.type, excludeId: property.id },
+      12,
     ),
   ]);
 
-  return { trends, neighborhood, retrieval, dataContext: buildComparablesText(property, comps) };
+  const { text, pricePositionPct } = buildComparables(property, comps);
+  return { trends, neighborhood, retrieval, dataContext: text, pricePositionPct };
 }

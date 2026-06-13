@@ -3,7 +3,7 @@
 // never from the LLM, which keeps the report's figures trustworthy and reproducible.
 
 import type { Property, FinancialAssumptions, InvestmentMetrics } from '@propertypulse/shared-types';
-import { computeInvestmentMetrics } from '@propertypulse/shared-utils';
+import { computeInvestmentMetrics, estimateMonthlyRent } from '@propertypulse/shared-utils';
 import { DEFAULT_ASSUMPTIONS } from '@propertypulse/shared-utils';
 
 export type AssumptionOverrides = Partial<FinancialAssumptions>;
@@ -11,8 +11,9 @@ export type AssumptionOverrides = Partial<FinancialAssumptions>;
 /** Build a full assumptions object, filling gaps with sensible market defaults. */
 export function buildAssumptions(property: Property, overrides: AssumptionOverrides = {}): FinancialAssumptions {
   const purchasePrice = overrides.purchasePrice ?? property.price;
-  // Rough default: monthly rent ≈ 0.5% of price; expenses ≈ 30% of rent.
-  const monthlyRent = overrides.monthlyRent ?? Math.round(purchasePrice * 0.005);
+  // Estimate rent from AREA + type (not a flat % of price) so the rental yield
+  // varies per property by its price/m². Expenses ≈ 30% of rent.
+  const monthlyRent = overrides.monthlyRent ?? estimateMonthlyRent(property.areaSqm, property.type);
   const monthlyExpenses = overrides.monthlyExpenses ?? Math.round(monthlyRent * 0.3);
 
   return {

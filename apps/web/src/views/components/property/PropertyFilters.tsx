@@ -7,15 +7,20 @@ import { useI18n } from '../../../i18n';
 interface Props {
   filters: PropertySearchParams;
   towns: string[];
+  availableTypes?: string[];
   onChange: (patch: Partial<PropertySearchParams>) => void;
   onReset: () => void;
 }
 
 const CITIES = ['Cairo', 'Giza'];
 
-export function PropertyFilters({ filters, towns, onChange, onReset }: Props) {
+export function PropertyFilters({ filters, towns, availableTypes, onChange, onReset }: Props) {
   const { t } = useI18n();
   const num = (v: string) => (v === '' ? undefined : Number(v));
+  // Show only types that exist in the dataset (falls back to all while loading).
+  const types = availableTypes && availableTypes.length
+    ? PROPERTY_TYPES.filter((pt) => availableTypes.includes(pt.value))
+    : PROPERTY_TYPES;
 
   return (
     <div className="card card-pad">
@@ -57,7 +62,7 @@ export function PropertyFilters({ filters, towns, onChange, onReset }: Props) {
             onChange={(e) => onChange({ type: (e.target.value || undefined) as PropertySearchParams['type'] })}
           >
             <option value="">All</option>
-            {PROPERTY_TYPES.map((pt) => (
+            {types.map((pt) => (
               <option key={pt.value} value={pt.value}>{pt.label}</option>
             ))}
           </select>

@@ -7,10 +7,9 @@ export function Footer() {
         <b className="serif">PropertyPulse</b> · © {new Date().getFullYear()} PropertyPulse Institutional. All rights reserved.
       </span>
       <div className="center-row muted" style={{ gap: 20, fontSize: '0.82rem' }}>
-        <a href="#privacy">Privacy</a>
-        <a href="#terms">Terms</a>
-        <a href="#regulatory">Regulatory</a>
-        <a href="#contact">Contact</a>
+        <a href="#insights">Market Insights</a>
+        <a href="#engines">Platform</a>
+        <a href="mailto:sales@propertypulse.app">Contact</a>
       </div>
     </footer>
   );

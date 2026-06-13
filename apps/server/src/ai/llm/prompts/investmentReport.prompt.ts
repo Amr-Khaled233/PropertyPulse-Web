@@ -10,6 +10,8 @@ export interface InvestmentReportPromptInput {
   risk: RiskAssessment;
   context: string;
   lang?: 'en' | 'ar';
+  /** Deterministic verdict the narrative must stay consistent with. */
+  verdict?: 'buy' | 'hold' | 'avoid';
 }
 
 export interface InvestmentReportPromptOutput {
@@ -20,19 +22,25 @@ export interface InvestmentReportPromptOutput {
 export function buildInvestmentReportPrompt(
   input: InvestmentReportPromptInput,
 ): InvestmentReportPromptOutput {
-  const { property, metrics, risk, context, lang } = input;
+  const { property, metrics, risk, context, lang, verdict } = input;
 
   const system = [
     'You are PropertyPulse, an expert real-estate investment analyst.',
-    'Write a clear, data-driven and trustworthy assessment for an individual investor.',
+    'Write a clear, data-driven and trustworthy assessment for an individual investor in 3–5 sentences.',
+    'Explain: (1) how the price compares to similar listings, (2) the rental yield / monthly cash flow,',
+    '(3) the 5-year return — note it is CUMULATIVE and driven mainly by Egypt\'s nominal price appreciation plus leverage,',
+    'and (4) why the recommendation follows. Use plain language, not jargon.',
     'Base every claim ONLY on the provided metrics, risk assessment and retrieved context.',
     'Do not invent numbers. Be concise and explainable.',
+    verdict
+      ? `The system verdict for this property is "${verdict}". Write the summary so it justifies and stays consistent with this verdict, and set "recommendation" to "${verdict}".`
+      : '',
     lang === 'ar'
       ? 'Write the "summary" text in Arabic (keep the recommendation enum value in English).'
       : 'Write the "summary" text in English.',
     'Respond ONLY with JSON matching: ',
     '{ "summary": string, "recommendation": "buy" | "hold" | "avoid", "confidence": number (0-1) }',
-  ].join(' ');
+  ].filter(Boolean).join(' ');
 
   const user = `
 PROPERTY

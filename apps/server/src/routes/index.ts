@@ -10,6 +10,7 @@ import { chatRouter } from './chat.routes.js';
 import { paymentRouter } from './payment.routes.js';
 import { adminRouter } from './admin.routes.js';
 import { inquiryRouter } from './inquiry.routes.js';
+import { marketRouter } from './market.routes.js';
 
 export const apiRouter = Router();
 
@@ -22,3 +23,4 @@ apiRouter.use('/chat', chatRouter);
 apiRouter.use('/payments', paymentRouter);
 apiRouter.use('/admin', adminRouter);
 apiRouter.use('/inquiries', inquiryRouter);
+apiRouter.use('/market', marketRouter);

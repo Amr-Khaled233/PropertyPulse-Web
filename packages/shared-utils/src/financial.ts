@@ -63,3 +63,53 @@ export function computeInvestmentMetrics(a: FinancialAssumptions): InvestmentMet
     fiveYearRoi,
   };
 }
+
+function clamp(v: number, lo: number, hi: number): number {
+  return Math.max(lo, Math.min(hi, Number.isFinite(v) ? v : 0));
+}
+
+/** Typical monthly rent per m² (EGP) by property type — Cairo/Giza market.
+ *  Estimating rent from AREA (not a flat % of price) makes the rental yield
+ *  vary realistically per property: a unit priced cheaply per m² yields more,
+ *  an expensive one yields less. */
+export const RENT_PER_SQM_BY_TYPE: Record<string, number> = {
+  apartment: 320,
+  house: 300,
+  villa: 250,
+  townhouse: 280,
+  commercial: 450,
+  land: 60,
+};
+
+export function estimateMonthlyRent(areaSqm: number, type: string): number {
+  const rate = RENT_PER_SQM_BY_TYPE[type] ?? 300;
+  return Math.round(Math.max(0, areaSqm) * rate);
+}
+
+export type Recommendation = 'buy' | 'hold' | 'avoid';
+
+/**
+ * Derive a grounded buy/hold/avoid recommendation from the computed metrics and
+ * how the property is priced versus comparable listings. Deterministic (not
+ * LLM-decided) so the verdict is consistent and actually varies by property:
+ *  - strong total return + fair/undervalued pricing → buy
+ *  - mixed → hold
+ *  - weak yields + overpriced vs comps → avoid
+ *
+ * @param pricePositionPct  subject price/m² vs comparable average (+ = pricier).
+ */
+export function deriveRecommendation(
+  m: InvestmentMetrics,
+  pricePositionPct = 0,
+): { recommendation: Recommendation; confidence: number; score: number } {
+  let score = 50;
+  score += (m.capRate - 6) * 4; // cap rate vs a 6% benchmark
+  score += clamp(m.cashOnCashReturn, -20, 20) * 1.2; // operating cash return
+  score += clamp(m.fiveYearRoi, -50, 150) * 0.22; // total 5y return (capped)
+  score -= clamp(pricePositionPct, -60, 60) * 1.1; // overpriced vs comps hurts
+  score = clamp(score, 0, 100);
+
+  const recommendation: Recommendation = score >= 62 ? 'buy' : score >= 42 ? 'hold' : 'avoid';
+  const confidence = Math.round((0.62 + Math.abs(score - 50) / 130) * 100) / 100;
+  return { recommendation, confidence: Math.min(confidence, 0.97), score: Math.round(score) };
+}

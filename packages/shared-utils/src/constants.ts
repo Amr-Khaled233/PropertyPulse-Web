@@ -1,11 +1,14 @@
 // Shared constants and sensible defaults used across apps.
 
+// Tuned for the Egyptian market: buyers typically put a large down payment
+// (or pay in developer installments), and nominal prices appreciate fast with
+// inflation/EGP moves — so appreciation, not leverage, drives returns.
 export const DEFAULT_ASSUMPTIONS = {
-  downPaymentPct: 20,
+  downPaymentPct: 40,
   loanInterestRate: 6.5,
-  loanTermYears: 30,
-  vacancyRatePct: 5,
-  annualAppreciationPct: 3,
+  loanTermYears: 20,
+  vacancyRatePct: 8,
+  annualAppreciationPct: 12,
 } as const;
 
 export const RECOMMENDATION_LABELS = {

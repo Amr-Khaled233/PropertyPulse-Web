@@ -14,9 +14,15 @@ export const analysisController = {
     ok(res, result);
   }),
 
-  /** POST /analysis/compare  { propertyIds: string[] } */
+  /** POST /analysis/compare  { propertyIds: string[], lang? } — auth + plan-gated */
   compare: asyncHandler(async (req, res) => {
-    const result = await analysisService.compare(req.body.propertyIds);
+    const result = await analysisService.compare(req.body.propertyIds, req.body.lang, req.user?.id);
+    ok(res, result);
+  }),
+
+  /** POST /analysis/negotiation  { propertyId, lang? } */
+  negotiation: asyncHandler(async (req, res) => {
+    const result = await analysisService.negotiation(req.body.propertyId, req.body.lang);
     ok(res, result);
   }),
 };

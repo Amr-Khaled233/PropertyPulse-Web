@@ -177,6 +177,13 @@ function mapRow(row: RawRow, includeRent: boolean): PropertyInsert | null {
   // Drop rows we still can't trust: a real Cairo/Giza listing is never < 30 m².
   if (!price || !area || area < 30) return null;
 
+  // Data-quality gate on price/m² (EGP): listings priced far below market are
+  // almost always a down-payment / quarterly instalment mislabelled as the price
+  // (e.g. "445K per quarter"), and absurdly high ones are data errors. Both
+  // corrupt the AI's valuation, so we drop them. Realistic Cairo/Giza band.
+  const pricePerSqm = price / area;
+  if (pricePerSqm < 10000 || pricePerSqm > 300000) return null;
+
   return {
     title,
     type: normalizeType(pick(row, 'property_type', 'type', 'category')),

@@ -12,6 +12,8 @@ const schema = z.object({
   GEMINI_API_KEY: z.string().min(1),
   GEMINI_MODEL: z.string().default('gemini-2.5-pro'),
   GEMINI_EMBEDDING_MODEL: z.string().default('text-embedding-004'),
+  // Optional — when set, real Stripe Checkout is used; otherwise the gateway is simulated.
+  STRIPE_SECRET_KEY: z.string().optional(),
 });
 
 export const env = schema.parse(process.env);

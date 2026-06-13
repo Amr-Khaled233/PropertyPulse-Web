@@ -23,7 +23,6 @@ export function PropertyDetailPage() {
 
   const p = vm.property;
   const m = vm.metrics;
-  const confidence = 8.7;
 
   return (
     <div className="col" style={{ gap: 22 }}>
@@ -43,10 +42,6 @@ export function PropertyDetailPage() {
           alignItems: 'flex-end',
         }}
       >
-        <div className="score-circle" style={{ position: 'absolute', top: 20, insetInlineEnd: 24 }}>
-          <b>{confidence}</b>
-          <small>Score</small>
-        </div>
         <div style={{ padding: 28 }}>
           <span className="badge badge-green">{p.status.replace('_', ' ')}</span>
           <h1 style={{ color: '#fff', margin: '10px 0 4px' }}>{p.title}</h1>
@@ -64,25 +59,24 @@ export function PropertyDetailPage() {
         <div className="grow card card-pad" style={{ minWidth: 280 }}>
           <span className="eyebrow">✦ {t('detail.analysis')}</span>
           <p className="muted" style={{ marginTop: 12 }}>{p.description}</p>
-          <div className="card" style={{ padding: 16, background: 'var(--surface-alt)', borderInlineStart: '3px solid var(--green)' }}>
-            <b className="serif">{t('detail.verdict')}</b>
-            <p className="muted" style={{ margin: '6px 0 0', fontStyle: 'italic' }}>
-              “Strong rental demand and projected appreciation make this a compelling multi-year hold.” — AI Advisor
-            </p>
-          </div>
           <div className="muted" style={{ marginTop: 14, fontSize: '0.85rem' }}>
             {formatPropertySpecs(p.bedrooms, p.bathrooms, p.areaSqm)}
           </div>
+          <Link to={ROUTES.analysis(p.id)} className="btn btn-green btn-sm" style={{ marginTop: 16 }}>
+            ✦ {t('detail.runAnalysis')}
+          </Link>
         </div>
 
         <div className="card-dark card-pad" style={{ width: 300, maxWidth: '100%', flexShrink: 0 }}>
-          <span className="stat-label" style={{ color: 'var(--text-on-dark-muted)' }}>{t('detail.confidence')}</span>
-          <div className="stat-value" style={{ color: '#fff' }}>{confidence}<span className="unit">/10</span></div>
-          <p style={{ color: 'var(--text-on-dark-muted)', fontSize: '0.85rem' }}>
-            AI-weighted blend of yield, liquidity, market and regulatory factors.
-          </p>
+          <span className="stat-label" style={{ color: 'var(--text-on-dark-muted)' }}>{t('detail.snapshot')}</span>
+          <div className="col" style={{ gap: 10, margin: '12px 0 16px' }}>
+            <div className="between"><span style={{ color: 'var(--text-on-dark-muted)' }}>{t('detail.netYield')}</span><b style={{ color: '#fff' }}>{formatPercent(m.netRentalYield)}</b></div>
+            <div className="between"><span style={{ color: 'var(--text-on-dark-muted)' }}>{t('detail.roi')}</span><b style={{ color: '#fff' }}>{formatPercent(m.fiveYearRoi)}</b></div>
+            <div className="between"><span style={{ color: 'var(--text-on-dark-muted)' }}>{t('detail.cashOnCash')}</span><b style={{ color: '#fff' }}>{formatPercent(m.cashOnCashReturn)}</b></div>
+            <div className="between"><span style={{ color: 'var(--text-on-dark-muted)' }}>Price / m²</span><b style={{ color: '#fff' }}>{formatCompactCurrency(Math.round(p.price / p.areaSqm), p.currency)}</b></div>
+          </div>
           <Link to={ROUTES.analysis(p.id)} className="btn btn-green btn-block">
-            {t('common.download')}
+            ✦ {t('detail.runAnalysis')}
           </Link>
           <button
             className="btn btn-on-dark btn-block"

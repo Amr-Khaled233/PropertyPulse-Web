@@ -1,79 +1,89 @@
-// Market Trends page (View) — Egyptian market analytics matching the design.
+// Market Trends page (View) — live Egyptian market analytics from the dataset.
 
 import { useI18n } from '../../i18n';
+import { useMarketViewModel } from '../../viewmodels/useMarketViewModel';
 import { MarketTrendChart } from '../components/analysis/MarketTrendChart';
 import { RentalYieldCard } from '../components/analysis/RentalYieldCard';
-import { MOCK_MARKET_TRENDS } from '../../services/mock/mockData';
-
-const HEATMAP = [
-  [3, 4, 2, 5, 3, 4, 5],
-  [2, 5, 4, 3, 5, 4, 3],
-  [4, 3, 5, 4, 2, 5, 4],
-];
-const shade = (v: number) => `rgba(14,155,114,${0.15 + v * 0.16})`;
+import { Loader } from '../components/common/Loader';
+import { formatCompactCurrency, formatNumber } from '../../utils/formatters';
 
 export function MarketTrendsPage() {
   const { t } = useI18n();
+  const { loading, data } = useMarketViewModel();
+
+  if (loading || !data) return <Loader full />;
+
+  const maxDistrict = Math.max(...data.topDistricts.map((d) => d.count), 1);
 
   return (
     <div className="col" style={{ gap: 22 }}>
       <div className="grid grid-3">
-        <RentalYieldCard label="Price Index YoY" value="+24.4%" positive sub="vs. prior year" />
-        <RentalYieldCard label="Mobile Supply" value="14,280" sub="active listings" />
-        <RentalYieldCard label="Institutional Buy" value="EGP 2.1B" positive sub="this quarter" dark />
+        <RentalYieldCard
+          label={t('market.priceIndex')}
+          value={`${data.appreciationPct >= 0 ? '+' : ''}${data.appreciationPct}%`}
+          positive={data.appreciationPct >= 0}
+          sub={t('market.vsPrior')}
+        />
+        <RentalYieldCard label={t('market.activeListings')} value={formatNumber(data.activeListings)} sub={t('market.liveListings')} />
+        <RentalYieldCard label={t('market.totalValue')} value={formatCompactCurrency(data.totalValue, 'EGP')} positive sub={t('market.acrossDataset')} dark />
       </div>
 
       <div className="row wrap" style={{ gap: 22, alignItems: 'stretch' }}>
         <div className="grow card card-pad" style={{ minWidth: 280 }}>
           <h3>{t('market.appreciation')}</h3>
-          <MarketTrendChart data={MOCK_MARKET_TRENDS} height={300} />
+          {data.trend.length > 0 ? (
+            <MarketTrendChart data={data.trend} height={300} />
+          ) : (
+            <p className="muted center" style={{ padding: 40 }}>{t('market.noTrend')}</p>
+          )}
         </div>
 
         <div className="card-dark card-pad" style={{ width: 280, maxWidth: '100%', flexShrink: 0 }}>
           <span className="eyebrow" style={{ color: 'var(--green)' }}>{t('market.analystNote')}</span>
           <p style={{ color: 'var(--text-on-dark)', marginTop: 10, fontSize: '0.9rem' }}>
-            The Egyptian market continues its upward momentum. New Cairo and Sheikh Zayed lead appreciation,
-            driven by compound demand and institutional inflows.
+            {t('market.note')
+              .replace('{listings}', formatNumber(data.activeListings))
+              .replace('{top}', data.topDistricts[0]?.name ?? '—')
+              .replace('{avg}', formatCompactCurrency(data.avgPrice, 'EGP'))}
           </p>
           <div className="divider" style={{ background: 'var(--navy-600)' }} />
           <span className="badge badge-orange">⚠ {t('market.riskFactor')}: Moderate</span>
           <p style={{ color: 'var(--text-on-dark-muted)', marginTop: 10, fontSize: '0.82rem' }}>
-            Currency volatility and interest-rate shifts may compress short-term yields in select corridors.
+            {t('market.riskNote')}
           </p>
         </div>
       </div>
 
       <div className="grid grid-2">
         <div className="card card-pad">
-          <h3>{t('market.rentalDemand')}</h3>
-          <div className="col" style={{ gap: 6 }}>
-            {HEATMAP.map((row, i) => (
-              <div key={i} className="row" style={{ gap: 6 }}>
-                {row.map((v, j) => (
-                  <div key={j} style={{ flex: 1, height: 34, borderRadius: 6, background: shade(v) }} title={`Demand ${v}/5`} />
-                ))}
-              </div>
-            ))}
+          <h3>{t('market.byType')}</h3>
+          <div className="col" style={{ gap: 14 }}>
+            {data.byType.slice(0, 6).map((r) => {
+              const pct = Math.round((r.count / data.activeListings) * 100);
+              return (
+                <div key={r.type}>
+                  <div className="between" style={{ fontSize: '0.85rem' }}>
+                    <span style={{ textTransform: 'capitalize' }}>{r.type}</span>
+                    <span className="muted">{formatNumber(r.count)} · {pct}%</span>
+                  </div>
+                  <div className="meter" style={{ marginTop: 4 }}><span style={{ width: `${pct}%` }} /></div>
+                </div>
+              );
+            })}
           </div>
-          <div className="muted" style={{ fontSize: '0.78rem', marginTop: 10 }}>Weekly rental demand intensity by district.</div>
         </div>
 
         <div className="card card-pad">
-          <h3>Inventory Velocity</h3>
+          <h3>{t('market.topAreas')}</h3>
           <div className="col" style={{ gap: 14 }}>
-            {[
-              { label: 'New Cairo', v: 86 },
-              { label: 'Sheikh Zayed', v: 72 },
-              { label: 'Heliopolis', v: 64 },
-              { label: 'Maadi', v: 51 },
-            ].map((r) => (
-              <div key={r.label}>
+            {data.topDistricts.map((r) => (
+              <div key={r.name}>
                 <div className="between" style={{ fontSize: '0.85rem' }}>
-                  <span>{r.label}</span>
-                  <span className="muted">{r.v}%</span>
+                  <span>{r.name}</span>
+                  <span className="muted">{formatNumber(r.count)} · {r.sharePct}%</span>
                 </div>
                 <div className="meter" style={{ marginTop: 4 }}>
-                  <span style={{ width: `${r.v}%` }} />
+                  <span style={{ width: `${Math.round((r.count / maxDistrict) * 100)}%` }} />
                 </div>
               </div>
             ))}

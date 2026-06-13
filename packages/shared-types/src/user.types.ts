@@ -18,7 +18,14 @@ export interface UserProfile {
 
 /** Monthly AI-report allowance per plan (null = unlimited). */
 export const PLAN_REPORT_LIMITS: Record<PlanTier, number | null> = {
-  free: 3,
+  free: 2,
+  pro: null,
+  enterprise: null,
+};
+
+/** Monthly AI-comparison allowance per plan (null = unlimited). */
+export const PLAN_COMPARE_LIMITS: Record<PlanTier, number | null> = {
+  free: 1,
   pro: null,
   enterprise: null,
 };

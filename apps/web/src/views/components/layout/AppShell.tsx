@@ -41,7 +41,6 @@ export function AppShell({ title, actions, children }: AppShellProps) {
           <div className="center-row">
             {actions}
             <ThemeLangToggle />
-            <button className="icon-btn" aria-label="Notifications">🔔</button>
             <div className="avatar" title={user?.email}>{initials}</div>
           </div>
         </header>

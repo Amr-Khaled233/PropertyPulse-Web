@@ -9,7 +9,7 @@ import { ApiError } from '../utils/apiError.js';
 import type { AssumptionOverrides } from '../ai/agents/calculationAgent.js';
 
 /** Free plan allowance — paid plans (pro/enterprise) are unlimited. */
-const FREE_MONTHLY_REPORTS = 3;
+const FREE_MONTHLY_REPORTS = 2;
 
 function startOfMonthISO(): string {
   const now = new Date();

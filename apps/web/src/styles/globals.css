@@ -94,6 +94,7 @@ body {
   font-family: var(--font-body);
   font-size: 15px;
   line-height: 1.55;
+  overflow-x: hidden; /* never allow horizontal scroll on any screen */
   -webkit-font-smoothing: antialiased;
 }
 
@@ -118,7 +119,31 @@ a { color: inherit; text-decoration: none; }
 .center { text-align: center; }
 
 /* ---------- Layout primitives ---------- */
-.container { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+.container { max-width: 1600px; margin: 0 auto; padding: 0 32px; }
+@media (max-width: 680px) { .container { padding: 0 18px; } }
+
+/* Public navbar — inline on desktop, hamburger menu on mobile. */
+.nav-bar { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; position: relative; }
+.nav-desktop { display: flex; align-items: center; gap: 22px; }
+.nav-mobile { display: none; align-items: center; gap: 10px; }
+/* Scoped to .nav-bar so it outranks any generic button styling. */
+.nav-bar .nav-toggle {
+  width: 40px; height: 40px; border-radius: 10px; border: 1px solid var(--border);
+  background: var(--surface); cursor: pointer; font-size: 1.1rem; display: inline-flex;
+  align-items: center; justify-content: center; color: var(--text);
+}
+.nav-menu {
+  position: absolute; top: calc(100% - 6px); inset-inline-end: 24px; z-index: 60;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+  padding: 14px; min-width: 210px; display: flex; flex-direction: column; gap: 12px;
+  box-shadow: 0 12px 30px rgba(10, 27, 46, 0.16);
+}
+.nav-menu a { color: var(--text); font-weight: 500; }
+.nav-menu a:hover { color: var(--green); }
+@media (max-width: 860px) {
+  .nav-desktop { display: none; }
+  .nav-mobile { display: flex; }
+}
 .row { display: flex; gap: 16px; }
 .col { display: flex; flex-direction: column; gap: 16px; }
 .between { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
@@ -249,7 +274,10 @@ a { color: inherit; text-decoration: none; }
 }
 .topbar h1 { font-size: 1.5rem; margin: 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .topbar > .center-row:first-child { min-width: 0; flex: 1; }
-.app-content { padding: 28px 32px 56px; max-width: 1280px; width: 100%; }
+/* Full-width content: fill the available area (minus padding) instead of
+   capping at 1280px, which previously left large empty margins on wide screens. */
+.app-content { padding: 28px 40px 56px; max-width: 100%; width: 100%; }
+@media (min-width: 1700px) { .app-content { padding-inline: 56px; } }
 @media (max-width: 860px) {
   .sidebar {
     position: fixed; top: 0; left: 0; z-index: 60;
@@ -306,6 +334,13 @@ a { color: inherit; text-decoration: none; }
 .spinner { width: 26px; height: 26px; border: 3px solid var(--surface-alt); border-top-color: var(--green); border-radius: 50%; animation: spin 0.7s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* Chat "typing…" indicator — three bouncing dots. */
+.typing { display: inline-flex; gap: 5px; align-items: center; padding: 2px 0; }
+.typing span { width: 7px; height: 7px; border-radius: 50%; background: var(--green); opacity: 0.5; animation: typing-bounce 1.2s infinite ease-in-out; }
+.typing span:nth-child(2) { animation-delay: 0.18s; }
+.typing span:nth-child(3) { animation-delay: 0.36s; }
+@keyframes typing-bounce { 0%, 60%, 100% { transform: translateY(0); opacity: 0.4; } 30% { transform: translateY(-5px); opacity: 1; } }
+
 /* ---------- Pagination ---------- */
 .pager { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: center; padding: 8px 0 4px; }
 .pager-nums { display: flex; gap: 4px; }
@@ -356,6 +391,24 @@ a { color: inherit; text-decoration: none; }
 .select-sm { padding: 5px 8px; font-size: 0.82rem; height: auto; min-width: 110px; }
 .icon-btn-sm { width: 30px; height: 30px; font-size: 0.9rem; }
 .icon-btn-sm.danger:hover { background: #fee2e2; color: #dc2626; border-color: #fecaca; }
+
+/* ---------- AI Compare ---------- */
+.compare-pick { border: 2px solid transparent; cursor: pointer; transition: border-color 0.15s; }
+.compare-pick.on { border-color: var(--green); }
+.compare-pick-img { display: block; width: 100%; border: 0; padding: 0; cursor: pointer; position: relative; background-size: cover; background-position: center; background-color: var(--navy); }
+.compare-check {
+  position: absolute; top: 8px; inset-inline-end: 8px; width: 24px; height: 24px;
+  border-radius: 50%; background: var(--green); color: #fff; display: flex;
+  align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700;
+  opacity: 0; transition: opacity 0.15s;
+}
+.compare-pick.on .compare-check { opacity: 1; }
+.compare-table td, .compare-table th { text-align: center; padding: 9px 12px; }
+.compare-table td:first-child, .compare-table th:first-child { text-align: start; }
+.compare-table .best-col { background: color-mix(in srgb, var(--green) 10%, transparent); }
+.compare-table th.best-col { border-top: 3px solid var(--green); }
+.negotiate-tips { margin: 0; padding-inline-start: 20px; }
+.negotiate-tips li { margin: 5px 0; line-height: 1.55; }
 .skeleton { background: linear-gradient(90deg, var(--surface-alt) 25%, #ece9e2 50%, var(--surface-alt) 75%); background-size: 200% 100%; animation: sk 1.2s infinite; border-radius: var(--radius-sm); }
 @keyframes sk { to { background-position: -200% 0; } }
 
@@ -386,10 +439,27 @@ a { color: inherit; text-decoration: none; }
 }
 
 /* ---------- Hero (landing) ---------- */
-.hero { background: var(--navy); color: var(--text-on-dark); border-radius: var(--radius-lg); padding: 64px 56px; position: relative; overflow: hidden; }
+.hero {
+  background: var(--navy); color: var(--text-on-dark);
+  /* Full-bleed: span the whole viewport width with no side white margins. */
+  width: 100vw; margin-inline: calc(50% - 50vw); border-radius: 0;
+  padding-block: 64px; padding-inline: clamp(24px, 6vw, 110px);
+  position: relative; overflow: hidden;
+  display: flex; align-items: center; gap: 40px;
+}
+.hero-content { flex: 1; min-width: 0; }
 .hero h1 { color: #fff; font-size: 3rem; max-width: 16ch; }
 .hero p { color: var(--text-on-dark-muted); max-width: 52ch; }
-@media (max-width: 680px) { .hero { padding: 40px 26px; } .hero h1 { font-size: 2.1rem; } h1 { font-size: 1.9rem; } }
+/* Right-hand preview cards fill the hero on wide screens; hidden on mobile. */
+.hero-visual { width: 320px; flex-shrink: 0; display: flex; flex-direction: column; gap: 16px; }
+.hero-card { padding: 18px; }
+@media (max-width: 980px) { .hero-visual { display: none; } .hero { padding: 48px 40px; } }
+@media (max-width: 680px) {
+  .hero { padding: 40px 26px; }
+  .hero h1 { font-size: 2.1rem; max-width: none; }
+  .hero p { max-width: none; }
+  h1 { font-size: 1.9rem; }
+}
 
 /* ---------- Auth aside (register feature panel) ---------- */
 .auth-aside .logo { font-size: 1.4rem; }

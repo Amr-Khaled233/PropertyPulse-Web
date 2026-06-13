@@ -11,6 +11,7 @@ export const ROUTES = {
   reports: '/reports',
   report: (id = ':id') => `/reports/${id}`,
   watchlist: '/watchlist',
+  compare: '/compare',
   chat: '/chat',
   market: '/market',
   pricing: '/pricing',

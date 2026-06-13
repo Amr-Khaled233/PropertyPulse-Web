@@ -15,7 +15,7 @@ export function PropertySearchPage() {
 
   return (
     <div className="col" style={{ gap: 18 }}>
-      <PropertyFilters filters={vm.filters} towns={vm.towns} onChange={vm.update} onReset={vm.reset} />
+      <PropertyFilters filters={vm.filters} towns={vm.towns} availableTypes={vm.availableTypes} onChange={vm.update} onReset={vm.reset} />
 
       <div className="between">
         <span className="muted">

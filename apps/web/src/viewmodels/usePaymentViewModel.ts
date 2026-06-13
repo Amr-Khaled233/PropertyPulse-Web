@@ -29,7 +29,7 @@ export const PLANS: Plan[] = [
     nameKey: 'pricing.free',
     price: 0,
     cadenceKey: 'pricing.foreverFree',
-    featureKeys: ['pricing.f.basicSearch', 'pricing.f.reports3', 'pricing.f.limitedData'],
+    featureKeys: ['pricing.f.basicSearch', 'pricing.f.reports2', 'pricing.f.compare1', 'pricing.f.limitedData'],
     ctaKey: 'pricing.currentPlan',
   },
   {
@@ -68,11 +68,6 @@ export function usePaymentViewModel() {
   const user = useAuthStore((s) => s.user);
   const setUser = useAuthStore((s) => s.setUser);
   const [selectedId, setSelectedId] = useState<PlanId>('pro');
-  const [cardName, setCardName] = useState('');
-  const [cardNumber, setCardNumber] = useState('');
-  const [expiry, setExpiry] = useState('');
-  const [cvv, setCvv] = useState('');
-  const [method, setMethod] = useState<'card' | 'vodafone' | 'fawry'>('card');
   const [processing, setProcessing] = useState(false);
 
   const selected = useMemo(() => PLANS.find((p) => p.id === selectedId) ?? PLANS[1], [selectedId]);
@@ -83,14 +78,14 @@ export function usePaymentViewModel() {
   async function subscribe(planName: string): Promise<void> {
     setProcessing(true);
     try {
-      await paymentService.subscribe({
-        plan: selected.id,
-        amount: total,
-        currency: CURRENCY,
-        cardName,
-        method,
-      });
-      // Reflect the new tier immediately (server already persisted it in real mode).
+      // Try real Stripe Checkout first; redirect the user to Stripe's page.
+      const checkout = await paymentService.startCheckout(selected.id);
+      if (checkout.url) {
+        window.location.href = checkout.url;
+        return; // we leave the app; the rest happens after redirect back
+      }
+      // Fallback (free plan or Stripe not configured): upgrade directly.
+      await paymentService.subscribe({ plan: selected.id, amount: total, currency: CURRENCY });
       if (user) setUser({ ...user, plan: selected.id });
       pushToast(`Subscription activated — welcome to ${planName}!`, 'success');
     } catch {
@@ -100,23 +95,28 @@ export function usePaymentViewModel() {
     }
   }
 
+  /** Called by the Pricing page when Stripe redirects back with a session id. */
+  async function confirmReturn(sessionId: string): Promise<void> {
+    try {
+      const res = await paymentService.confirm(sessionId);
+      if (user) setUser({ ...user, plan: res.plan });
+      pushToast(`Payment successful — welcome to ${res.plan.toUpperCase()}!`, 'success');
+    } catch {
+      pushToast('We could not confirm your payment.', 'error');
+    }
+  }
+
   return {
     plans: PLANS,
     selected,
     selectedId,
     selectPlan: setSelectedId,
-    card: { cardName, cardNumber, expiry, cvv },
-    setCardName,
-    setCardNumber,
-    setExpiry,
-    setCvv,
-    method,
-    setMethod,
     currency: CURRENCY,
     subtotal,
     vat,
     total,
     processing,
     subscribe,
+    confirmReturn,
   };
 }

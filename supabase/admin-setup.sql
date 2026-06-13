@@ -34,3 +34,12 @@ create index if not exists idx_inquiries_status on inquiries(status);
 create index if not exists idx_inquiries_kind on inquiries(kind);
 -- No seed rows: inquiries should only come from real submissions via the
 -- "Contact / Request viewing" form on a property page.
+
+-- ---------- Usage events (plan quota enforcement: AI compare, etc.) ----------
+create table if not exists usage_events (
+  id          uuid primary key default uuid_generate_v4(),
+  user_id     uuid not null references profiles(id) on delete cascade,
+  kind        text not null,           -- e.g. 'compare'
+  created_at  timestamptz not null default now()
+);
+create index if not exists idx_usage_user_kind on usage_events(user_id, kind, created_at);

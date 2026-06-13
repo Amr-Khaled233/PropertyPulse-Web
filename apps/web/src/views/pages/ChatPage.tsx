@@ -27,7 +27,11 @@ export function ChatPage() {
             {m.role === 'user' ? m.content : <Markdown text={m.content} />}
           </div>
         ))}
-        {loading && <div className="chat-msg chat-ai"><span className="spinner" style={{ width: 16, height: 16 }} /></div>}
+        {loading && (
+          <div className="chat-msg chat-ai">
+            <span className="typing"><span></span><span></span><span></span></span>
+          </div>
+        )}
         {!!sources.length && (
           <div className="muted" style={{ fontSize: '0.78rem' }}>Sources: {sources.join(' · ')}</div>
         )}

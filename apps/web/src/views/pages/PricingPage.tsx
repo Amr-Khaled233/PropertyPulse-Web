@@ -2,10 +2,12 @@
 // Public/marketing chrome (Navbar + Footer). Checkout is wired to the mock
 // payment service in mock mode; swap in a real gateway (Paymob/Stripe) later.
 
+import { useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useI18n } from '../../i18n';
 import { usePaymentViewModel } from '../../viewmodels/usePaymentViewModel';
+import { useUiStore } from '../../store/uiStore';
 import { Button } from '../components/common/Button';
-import { Input } from '../components/common/Input';
 
 const BANNER_IMG =
   'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=400&q=70';
@@ -14,6 +16,21 @@ export function PricingPage() {
   const { t } = useI18n();
   const vm = usePaymentViewModel();
   const { selected } = vm;
+  const [params, setParams] = useSearchParams();
+  const pushToast = useUiStore((s) => s.pushToast);
+
+  // Handle the redirect back from Stripe Checkout.
+  useEffect(() => {
+    const sessionId = params.get('session_id');
+    const canceled = params.get('canceled');
+    if (sessionId) {
+      vm.confirmReturn(sessionId).finally(() => setParams({}, { replace: true }));
+    } else if (canceled) {
+      pushToast('Payment canceled.', 'info');
+      setParams({}, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const planLabel = `PropertyPulse ${t(selected.nameKey)}`;
   const money = (n: number, dec = false) =>
     `EGP ${dec ? n.toFixed(2) : n.toLocaleString('en-US')}`;
@@ -64,12 +81,12 @@ export function PricingPage() {
             <div>
               <b className="serif" style={{ fontSize: '1.05rem' }}>{t('pricing.customTitle')}</b>
               <p className="muted" style={{ margin: '4px 0 8px', fontSize: '0.88rem' }}>{t('pricing.customDesc')}</p>
-              <a className="accent" style={{ fontWeight: 600, fontSize: '0.85rem' }}>{t('pricing.bookCall')} →</a>
+              <a className="accent" href="mailto:sales@propertypulse.app" style={{ fontWeight: 600, fontSize: '0.85rem' }}>{t('pricing.bookCall')} →</a>
             </div>
           </div>
         </div>
 
-        {/* Secure checkout */}
+        {/* Secure checkout (Stripe) */}
         <aside className="card card-pad checkout">
           <h3 style={{ marginBottom: 14 }}>{t('pricing.checkout')}</h3>
 
@@ -84,56 +101,7 @@ export function PricingPage() {
             <b className="accent">{money(selected.price, true)}</b>
           </div>
 
-          <div className="col" style={{ gap: 14, marginTop: 16 }}>
-            <Input
-              label={t('pricing.cardName')}
-              placeholder={t('pricing.cardNamePh')}
-              value={vm.card.cardName}
-              onChange={(e) => vm.setCardName(e.target.value)}
-            />
-            <Input
-              label={t('pricing.cardNumber')}
-              placeholder="0000 0000 0000 0000"
-              inputMode="numeric"
-              value={vm.card.cardNumber}
-              onChange={(e) => vm.setCardNumber(e.target.value)}
-            />
-            <div className="grid grid-2" style={{ gap: 14 }}>
-              <Input
-                label={t('pricing.expiry')}
-                placeholder="MM/YY"
-                value={vm.card.expiry}
-                onChange={(e) => vm.setExpiry(e.target.value)}
-              />
-              <Input
-                label={t('pricing.cvv')}
-                placeholder="123"
-                inputMode="numeric"
-                value={vm.card.cvv}
-                onChange={(e) => vm.setCvv(e.target.value)}
-              />
-            </div>
-          </div>
-
-          <div className="pay-divider">{t('pricing.orPayWith')}</div>
-          <div className="grid grid-2" style={{ gap: 12 }}>
-            <button
-              type="button"
-              className={`pay-method${vm.method === 'vodafone' ? ' active' : ''}`}
-              onClick={() => vm.setMethod('vodafone')}
-            >
-              <span className="pm-vodafone">Vodafone</span> Cash
-            </button>
-            <button
-              type="button"
-              className={`pay-method${vm.method === 'fawry' ? ' active' : ''}`}
-              onClick={() => vm.setMethod('fawry')}
-            >
-              <span className="pm-fawry">Fawry</span>
-            </button>
-          </div>
-
-          <div className="checkout-summary">
+          <div className="checkout-summary" style={{ marginTop: 16 }}>
             <div className="between"><span className="muted">{t('pricing.subtotal')}</span><span>{money(vm.subtotal, true)}</span></div>
             <div className="between"><span className="muted">{t('pricing.vat')}</span><span>{money(vm.vat, true)}</span></div>
             <div className="between summary-total"><b>{t('pricing.total')}</b><b>{money(vm.total, true)}</b></div>
@@ -142,13 +110,15 @@ export function PricingPage() {
           <Button
             variant="green"
             block
-            disabled={vm.processing}
+            disabled={vm.processing || selected.price === 0}
             onClick={() => void vm.subscribe(planLabel)}
-            style={{ marginTop: 4 }}
+            style={{ marginTop: 16 }}
           >
-            {vm.processing ? t('common.loading') : t('pricing.payNow')}
+            {vm.processing ? t('common.loading') : selected.price === 0 ? t('pricing.currentPlan') : t('pricing.payStripe')}
           </Button>
+
           <div className="center muted secured">🔒 {t('pricing.secured')}</div>
+          <p className="muted center" style={{ fontSize: '0.78rem', marginTop: 8 }}>{t('pricing.stripeNote')}</p>
         </aside>
       </div>
     </div>

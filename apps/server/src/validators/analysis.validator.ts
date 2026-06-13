@@ -22,7 +22,13 @@ export const computeMetricsSchema = z.object({
 });
 
 export const compareSchema = z.object({
-  propertyIds: z.array(z.string().uuid()).min(2).max(5),
+  propertyIds: z.array(z.string().uuid()).min(2).max(4),
+  lang: z.enum(['en', 'ar']).optional(),
+});
+
+export const negotiationSchema = z.object({
+  propertyId: z.string().uuid(),
+  lang: z.enum(['en', 'ar']).optional(),
 });
 
 export const generateReportSchema = z.object({

@@ -14,10 +14,14 @@ export interface PropertyComparisonPromptOutput {
 
 export function buildPropertyComparisonPrompt(
   candidates: ComparisonCandidate[],
+  lang?: 'en' | 'ar',
 ): PropertyComparisonPromptOutput {
   const system = [
-    'You are a real-estate investment advisor comparing candidate properties.',
-    'Rank them from best to worst investment and justify briefly using the metrics.',
+    'You are a real-estate investment advisor comparing candidate properties in the Cairo & Giza market.',
+    'Rank them from best to worst investment and justify briefly using the metrics (yields, ROI, price).',
+    lang === 'ar'
+      ? 'Write every "rationale" and the "verdict" in Arabic (keep propertyId values unchanged).'
+      : 'Write the rationale and verdict in English.',
     'Respond ONLY with JSON matching:',
     '{ "ranking": [ { "propertyId": string, "rank": number, "rationale": string } ], "verdict": string }',
   ].join(' ');

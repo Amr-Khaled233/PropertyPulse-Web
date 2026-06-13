@@ -8,3 +8,5 @@ export const paymentRouter = Router();
 
 paymentRouter.use(requireAuth);
 paymentRouter.post('/subscribe', paymentController.subscribe);
+paymentRouter.post('/checkout', paymentController.checkout);
+paymentRouter.get('/confirm', paymentController.confirm);

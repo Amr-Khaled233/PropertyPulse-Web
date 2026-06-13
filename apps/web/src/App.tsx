@@ -19,9 +19,6 @@ export function App() {
     applyDocument(theme, lang);
   }, [theme, lang]);
 
-  // On startup, validate a persisted session once. If the stored token is stale
-  // (e.g. the account was removed), sign out cleanly instead of leaving the user
-  // in a broken state where every authed call returns "Invalid or expired token".
   useEffect(() => {
     if (IS_MOCK) return;
     const { user, logout } = useAuthStore.getState();
@@ -29,8 +26,6 @@ export function App() {
     authService.me().catch(() => logout());
   }, []);
 
-  // Google OAuth: adopt the Supabase session after the redirect back, and keep
-  // our app token in sync whenever Supabase refreshes the session.
   useEffect(() => {
     if (IS_MOCK || !supabase) return;
     const adopt = async (token?: string) => {
