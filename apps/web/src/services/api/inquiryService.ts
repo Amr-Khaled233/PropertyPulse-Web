@@ -1,7 +1,7 @@
 // Public inquiry submission (contact / viewing request from a property page).
 
 import type { Inquiry, InquiryKind } from '@propertypulse/shared-types';
-import { apiClient, IS_MOCK, mockDelay } from './apiClient';
+import { apiClient } from './apiClient';
 
 export interface InquiryDraft {
   kind: InquiryKind;
@@ -14,14 +14,6 @@ export interface InquiryDraft {
 
 export const inquiryService = {
   async create(draft: InquiryDraft): Promise<Inquiry> {
-    if (IS_MOCK) {
-      return mockDelay({
-        id: `inq-${Date.now()}`,
-        status: 'new',
-        createdAt: new Date().toISOString(),
-        ...draft,
-      } as Inquiry);
-    }
     const { data } = await apiClient.post<Inquiry>('/inquiries', draft);
     return data;
   },
