@@ -11,11 +11,11 @@ rental yield, market trends, risk assessment) in minutes.
 
 ## AI Trinity
 
-| Pillar | Role | Tech |
-| --- | --- | --- |
-| **LLM** | Investment reasoning, report generation, risk assessment, Q&A | Gemini 2.5 Pro |
-| **RAG** | Retrieve listings, rental stats, neighborhood, economic & regulatory data | Embeddings + pgvector (Supabase) |
-| **Agents** | Gather data, run calculations, generate reports, monitor saved properties | Orchestrated agents (server) |
+| Pillar     | Role                                                                      | Tech                             |
+| ---------- | ------------------------------------------------------------------------- | -------------------------------- |
+| **LLM**    | Investment reasoning, report generation, risk assessment, Q&A             | Gemini 2.5 Pro                   |
+| **RAG**    | Retrieve listings, rental stats, neighborhood, economic & regulatory data | Embeddings + pgvector (Supabase) |
+| **Agents** | Gather data, run calculations, generate reports, monitor saved properties | Orchestrated agents (server)     |
 
 ## Monorepo Layout
 

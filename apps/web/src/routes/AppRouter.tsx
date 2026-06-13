@@ -23,6 +23,7 @@ import { AdminPage } from '../views/pages/AdminPage';
 
 /** Require an authenticated session; otherwise redirect to login.
  *  Admins are confined to the admin panel — they don't use the investor app. */
+
 function RequireAuth() {
   const user = useAuthStore((s) => s.user);
   const location = useLocation();
@@ -44,17 +45,25 @@ function RequireAdmin() {
 function ShellLayout() {
   const { t } = useI18n();
   const { pathname } = useLocation();
-  const titleKey: TranslationKey =
-    pathname.startsWith('/search') ? 'nav.search'
-    : pathname.startsWith('/property') ? 'detail.analysis'
-    : pathname.startsWith('/analysis') ? 'detail.analysis'
-    : pathname.startsWith('/reports') ? 'reports.title'
-    : pathname.startsWith('/watchlist') ? 'watch.title'
-    : pathname.startsWith('/chat') ? 'chat.title'
-    : pathname.startsWith('/market') ? 'market.title'
-    : pathname.startsWith('/pricing') ? 'nav.pricing'
-    : pathname.startsWith('/admin') ? 'admin.title'
-    : 'dash.title';
+  const titleKey: TranslationKey = pathname.startsWith('/search')
+    ? 'nav.search'
+    : pathname.startsWith('/property')
+      ? 'detail.analysis'
+      : pathname.startsWith('/analysis')
+        ? 'detail.analysis'
+        : pathname.startsWith('/reports')
+          ? 'reports.title'
+          : pathname.startsWith('/watchlist')
+            ? 'watch.title'
+            : pathname.startsWith('/chat')
+              ? 'chat.title'
+              : pathname.startsWith('/market')
+                ? 'market.title'
+                : pathname.startsWith('/pricing')
+                  ? 'nav.pricing'
+                  : pathname.startsWith('/admin')
+                    ? 'admin.title'
+                    : 'dash.title';
   return <AppShell title={t(titleKey)} />;
 }
 
