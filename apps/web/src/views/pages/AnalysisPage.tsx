@@ -7,7 +7,6 @@ import { ROUTES } from '../../routes/routes';
 import { Loader } from '../components/common/Loader';
 import { Button } from '../components/common/Button';
 import { ReportViewer } from '../components/report/ReportViewer';
-import { NegotiationCard } from '../components/analysis/NegotiationCard';
 import { ScenarioPanel } from '../components/analysis/ScenarioPanel';
 
 export function AnalysisPage() {
@@ -52,8 +51,6 @@ export function AnalysisPage() {
         )
       )}
 
-      {/* Always-available, data-grounded tools (no AI quota needed) */}
-      <NegotiationCard propertyId={vm.property.id} />
       <ScenarioPanel price={vm.property.price} currency={vm.property.currency} areaSqm={vm.property.areaSqm} type={vm.property.type} />
     </div>
   );

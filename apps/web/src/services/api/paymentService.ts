@@ -2,7 +2,7 @@
 
 import { apiClient } from './apiClient';
 
-export type PlanId = 'free' | 'pro' | 'enterprise';
+export type PlanId = 'free' | 'pro';
 
 export interface SubscribeInput {
   plan: PlanId;

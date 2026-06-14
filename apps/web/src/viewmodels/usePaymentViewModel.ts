@@ -47,20 +47,6 @@ export const PLANS: Plan[] = [
     ctaKey: 'pricing.upgradeNow',
     popular: true,
   },
-  {
-    id: 'enterprise',
-    tierKey: 'pricing.scale',
-    nameKey: 'pricing.enterprise',
-    price: 2400,
-    cadenceKey: 'pricing.customAccess',
-    featureKeys: [
-      'pricing.f.teamCollab',
-      'pricing.f.apiAccess',
-      'pricing.f.customEngine',
-      'pricing.f.priorityManager',
-    ],
-    ctaKey: 'pricing.contactSales',
-  },
 ];
 
 export function usePaymentViewModel() {

@@ -379,6 +379,7 @@ a { color: inherit; text-decoration: none; }
 }
 .tab:hover { color: var(--text); }
 .tab.active { color: var(--navy); border-bottom-color: var(--green); }
+[data-theme='dark'] .tab.active { color: var(--text); }
 .table-scroll { overflow-x: auto; }
 .admin-table { width: 100%; }
 .admin-table td { vertical-align: middle; }
