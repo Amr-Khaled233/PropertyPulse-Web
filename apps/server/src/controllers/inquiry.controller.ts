@@ -1,8 +1,8 @@
-// Public inquiry controller — lets visitors submit a contact / viewing request
-// from a property page. These land in the admin CRM.
+// Inquiry controller — public submission + the signed-in user's own inquiries
+// (used by the Notifications feature).
 
 import { asyncHandler } from '../utils/asyncHandler.js';
-import { created } from '../utils/apiResponse.js';
+import { ok, created } from '../utils/apiResponse.js';
 import { adminRepository } from '../repositories/admin.repository.js';
 
 export const inquiryController = {
@@ -16,5 +16,15 @@ export const inquiryController = {
       propertyId: req.body.propertyId,
     });
     created(res, inquiry);
+  }),
+
+  /** GET /inquiries/my — the authenticated user's inquiries (matched by email). */
+  mine: asyncHandler(async (req, res) => {
+    const email = req.user?.email;
+    if (!email) {
+      ok(res, []);
+      return;
+    }
+    ok(res, await adminRepository.listInquiriesByEmail(email));
   }),
 };

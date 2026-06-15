@@ -407,6 +407,53 @@ a { color: inherit; text-decoration: none; }
 .compare-table td:first-child, .compare-table th:first-child { text-align: start; }
 .compare-table .best-col { background: color-mix(in srgb, var(--green) 10%, transparent); }
 .compare-table th.best-col { border-top: 3px solid var(--green); }
+
+/* AI Compare — mobile-matching result cards */
+.cmp-verdict { border-radius: var(--radius); padding: 18px 20px; }
+.cmp-verdict-eyebrow { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+.cmp-verdict-text { color: #fff; margin: 8px 0 0; line-height: 1.6; font-size: 0.95rem; }
+.cmp-card { padding: 16px; }
+.cmp-head { display: flex; align-items: center; gap: 10px; }
+.cmp-rank {
+  flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; display: inline-flex;
+  align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem;
+  background: var(--surface-alt); color: var(--text-muted);
+}
+.cmp-title { flex: 1; min-width: 0; font-size: 1rem; }
+.cmp-pill { flex-shrink: 0; color: #fff; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.04em; padding: 3px 10px; border-radius: 999px; }
+.cmp-price { font-size: 1.5rem; font-weight: 600; margin: 12px 0 14px; }
+.cmp-metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.cmp-metric { background: var(--surface-alt); border-radius: 10px; padding: 10px 8px; text-align: center; }
+.cmp-metric-label { font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+.cmp-metric-value { font-size: 0.95rem; font-weight: 700; margin-top: 3px; }
+.cmp-score { font-size: 0.82rem; margin-top: 12px; }
+.cmp-rationale { font-size: 0.86rem; margin-top: 6px; line-height: 1.55; }
+@media (max-width: 560px) { .cmp-metrics { grid-template-columns: repeat(2, 1fr); } }
+
+/* ---------- Notifications bell ---------- */
+.notif { position: relative; display: inline-flex; }
+.notif-badge {
+  position: absolute; top: -4px; inset-inline-end: -4px; min-width: 17px; height: 17px;
+  padding: 0 4px; border-radius: 999px; background: #C0392B; color: #fff;
+  font-size: 0.64rem; font-weight: 700; display: inline-flex; align-items: center;
+  justify-content: center; border: 2px solid var(--cream);
+}
+.notif-panel {
+  position: absolute; top: calc(100% + 8px); inset-inline-end: 0; z-index: 70;
+  width: 340px; max-width: 92vw; max-height: 460px; overflow-y: auto;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+  box-shadow: 0 14px 34px rgba(10, 22, 40, 0.18);
+}
+.notif-head { padding: 14px 16px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--surface); }
+.notif-list { list-style: none; margin: 0; padding: 4px; }
+.notif-item { padding: 12px; border-radius: 10px; }
+.notif-item:hover { background: var(--surface-alt); }
+.notif-item + .notif-item { border-top: 1px solid var(--border); }
+.notif-kind { font-weight: 600; font-size: 0.88rem; }
+.notif-date { font-size: 0.74rem; flex-shrink: 0; }
+.notif-msg { font-size: 0.82rem; color: var(--text-muted); margin-top: 4px; }
+.notif-pill { color: #fff; font-size: 0.66rem; font-weight: 700; padding: 2px 9px; border-radius: 999px; flex-shrink: 0; }
+.notif-exp { font-size: 0.76rem; line-height: 1.4; }
 .negotiate-tips { margin: 0; padding-inline-start: 20px; }
 .negotiate-tips li { margin: 5px 0; line-height: 1.55; }
 .skeleton { background: linear-gradient(90deg, var(--surface-alt) 25%, #ece9e2 50%, var(--surface-alt) 75%); background-size: 200% 100%; animation: sk 1.2s infinite; border-radius: var(--radius-sm); }

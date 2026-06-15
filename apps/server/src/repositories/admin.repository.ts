@@ -50,6 +50,17 @@ export const adminRepository = {
     return (data as InquiryRow[]).map(toInquiry);
   },
 
+  /** A specific user's inquiries, matched by the email they submitted with. */
+  async listInquiriesByEmail(email: string): Promise<Inquiry[]> {
+    const { data, error } = await supabase
+      .from('inquiries')
+      .select('*')
+      .ilike('email', email)
+      .order('created_at', { ascending: false });
+    if (error) throw new ApiError(500, 'INQUIRIES_FETCH_FAILED', error.message);
+    return (data as InquiryRow[]).map(toInquiry);
+  },
+
   async createInquiry(input: {
     kind: Inquiry['kind'];
     name: string;

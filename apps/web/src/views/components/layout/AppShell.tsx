@@ -5,6 +5,7 @@ import { Outlet } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Toaster } from './Toaster';
 import { ThemeLangToggle } from './ThemeLangToggle';
+import { NotificationsBell } from './NotificationsBell';
 import { useUiStore } from '../../../store/uiStore';
 import { useAuthStore } from '../../../store/authStore';
 
@@ -41,6 +42,7 @@ export function AppShell({ title, actions, children }: AppShellProps) {
           <div className="center-row">
             {actions}
             <ThemeLangToggle />
+            <NotificationsBell />
             <div className="avatar" title={user?.email}>{initials}</div>
           </div>
         </header>
