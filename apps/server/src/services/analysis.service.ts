@@ -41,6 +41,7 @@ export interface ComparisonCandidateOut {
   recommendation: Recommendation;
   pricePerSqm: number;
   pricePositionPct: number;
+  score: number; // deterministic investment score 0–100
 }
 
 export interface ComparisonResult {
@@ -116,6 +117,7 @@ export const analysisService = {
       recommendation: s.recommendation,
       pricePerSqm: Math.round(ppsm[s.i]),
       pricePositionPct: Math.round(s.pricePositionPct * 10) / 10,
+      score: s.score,
     }));
 
     let ranking: ComparisonResult['ranking'] = [];
@@ -135,15 +137,22 @@ export const analysisService = {
     // Always provide a ranking: fall back to the deterministic investment score.
     if (ranking.length === 0) {
       const ar = lang === 'ar';
+      // Complementary one-liner (the numeric score is shown separately by the UI).
+      const reason = (rec: Recommendation): string =>
+        ar
+          ? rec === 'buy'
+            ? 'مسعّر بشكل جذّاب مقابل السوق المحلي — نقطة دخول جيدة.'
+            : rec === 'hold'
+              ? 'مسعّر بشكل عادل؛ العائد معقول لكنه ليس استثنائيًا.'
+              : 'مسعّر أعلى من السوق المحلي، ما يقلّل هامش الأمان.'
+          : rec === 'buy'
+            ? 'Attractively priced versus the local market — a solid entry point.'
+            : rec === 'hold'
+              ? 'Fairly priced; returns are reasonable but not standout.'
+              : 'Priced above the local market, leaving little margin of safety.';
       ranking = [...scored]
         .sort((a, b) => b.score - a.score)
-        .map((s, idx) => ({
-          propertyId: s.c.property.id,
-          rank: idx + 1,
-          rationale: ar
-            ? `درجة استثمار ${s.score}/100 — ${s.pricePositionPct <= 0 ? `مسعّر أقل من السوق بنسبة ${Math.abs(s.pricePositionPct).toFixed(0)}%` : `مسعّر أعلى من السوق بنسبة ${s.pricePositionPct.toFixed(0)}%`}.`
-            : `Investment score ${s.score}/100 — ${s.pricePositionPct <= 0 ? `priced ${Math.abs(s.pricePositionPct).toFixed(0)}% below market` : `priced ${s.pricePositionPct.toFixed(0)}% above market`}.`,
-        }));
+        .map((s, idx) => ({ propertyId: s.c.property.id, rank: idx + 1, rationale: reason(s.recommendation) }));
       if (!verdict) {
         const best = [...scored].sort((a, b) => b.score - a.score)[0];
         verdict = ar

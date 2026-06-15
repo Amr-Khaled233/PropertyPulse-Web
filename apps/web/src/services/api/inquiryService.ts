@@ -17,4 +17,10 @@ export const inquiryService = {
     const { data } = await apiClient.post<Inquiry>('/inquiries', draft);
     return data;
   },
+
+  /** The signed-in user's own inquiries (for Notifications). */
+  async mine(): Promise<Inquiry[]> {
+    const { data } = await apiClient.get<Inquiry[]>('/inquiries/my');
+    return data;
+  },
 };

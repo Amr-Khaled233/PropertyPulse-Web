@@ -14,6 +14,7 @@ export interface ComparisonCandidate {
   recommendation: 'buy' | 'hold' | 'avoid';
   pricePerSqm: number;
   pricePositionPct: number;
+  score: number;
 }
 
 export interface ComparisonResult {
