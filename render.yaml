@@ -1,0 +1,29 @@
+# Render Blueprint — PropertyPulse API (Express).
+# The web (apps/web) is deployed separately on Vercel.
+# Install runs at the repo root so npm workspaces (@propertypulse/*) link correctly,
+# then the server is started with tsx (no compile step; shared packages stay as TS).
+services:
+  - type: web
+    name: propertypulse-api
+    runtime: node
+    plan: free
+    rootDir: .
+    buildCommand: npm install
+    startCommand: npm run start --workspace @propertypulse/server
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: GEMINI_MODEL
+        value: gemini-2.0-flash
+      # Set these in the Render dashboard (sync:false keeps them out of git):
+      - key: CORS_ORIGIN            # e.g. https://property-pulse-web.vercel.app
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
