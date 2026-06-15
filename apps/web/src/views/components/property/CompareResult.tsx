@@ -86,7 +86,19 @@ function CandidateCard({ c, rank, rationale }: { c: ComparisonCandidate; rank: n
       {/* investment score line */}
       <div className="cmp-score muted">{scoreLine}</div>
 
-      {/* AI rationale */}
+      {/* AI Reasoning — per-candidate bullets (mirrors the mobile app) */}
+      {c.reasoning?.length > 0 && (
+        <div className="cmp-reasoning">
+          <div className="cmp-reasoning-head" style={{ color: EMERALD }}>💡 {t('compare.reasoning')}</div>
+          <ul className="cmp-reasoning-list">
+            {c.reasoning.map((line, idx) => (
+              <li key={idx}><span className="cmp-bullet" style={{ background: EMERALD }} />{line}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* AI ranking rationale */}
       {rationale && <div className="cmp-rationale muted">{rationale}</div>}
     </div>
   );

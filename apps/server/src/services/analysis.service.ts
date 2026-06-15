@@ -30,6 +30,68 @@ import {
   type ComparisonCandidate,
 } from '../ai/llm/prompts/propertyComparison.prompt.js';
 
+/** Deterministic, metric-grounded reasoning bullets for a compared property —
+ *  mirrors the mobile app's per-candidate "AI Reasoning" list. Always available
+ *  (doesn't depend on the LLM) so every candidate shows a full rationale. */
+function buildCandidateReasoning(
+  property: Property,
+  m: InvestmentMetrics,
+  pricePerSqm: number,
+  pricePositionPct: number,
+  lang?: 'en' | 'ar',
+): string[] {
+  const ar = lang === 'ar';
+  const ccy = property.currency;
+  const num = (v: number) => Math.round(v).toLocaleString('en-US');
+  const pct = (v: number) => `${v.toFixed(1)}%`;
+  const city = property.address.city;
+  const roi = m.fiveYearRoi;
+  const cf = Math.round(m.monthlyCashFlow);
+  const cap = m.capRate;
+  const under = pricePositionPct < 0;
+  const absPos = Math.abs(pricePositionPct);
+  const strongYield = m.netRentalYield >= 7;
+  const isApt = property.type === 'apartment';
+  const bullets: string[] = [];
+
+  bullets.push(
+    ar
+      ? `العائد الإيجاري الصافي ${pct(m.netRentalYield)} ${strongYield ? 'قوي بشكل لافت' : m.netRentalYield >= 4 ? 'معقول' : 'منخفض'} لسوق ${city} السكني.`
+      : `The net rental yield of ${pct(m.netRentalYield)} is ${strongYield ? 'exceptionally strong' : m.netRentalYield >= 4 ? 'reasonable' : 'on the low side'} for the ${city} residential market.`,
+  );
+  bullets.push(
+    ar
+      ? `توقّع العائد على 5 سنوات عند ${pct(roi)}، ما يشير إلى ${roi >= 100 ? 'إمكانات نمو رأسمالي كبيرة' : 'نمو رأسمالي معتدل'} للمستثمر.`
+      : `The 5-year ROI outlook stands at ${pct(roi)}, indicating ${roi >= 100 ? 'substantial capital appreciation' : 'moderate capital growth'} potential for the investor.`,
+  );
+  bullets.push(
+    cf >= 0
+      ? ar
+        ? `تدفّق نقدي شهري موجب قدره ${num(cf)} ${ccy} يعني سيولة فورية وأصلًا يغطّي مصاريفه ذاتيًا.`
+        : `A positive monthly cash flow of ${num(cf)} ${ccy} implies immediate liquidity and a self-sustaining asset that covers its own expenses.`
+      : ar
+        ? `تدفّق نقدي شهري سالب قدره ${num(Math.abs(cf))} ${ccy} يتطلّب تمويلًا إضافيًا قبل أن يصبح الأصل مكتفيًا ذاتيًا.`
+        : `A negative monthly cash flow of ${num(Math.abs(cf))} ${ccy} means the asset needs topping up before it becomes self-sustaining.`,
+  );
+  bullets.push(
+    ar
+      ? `عند نحو ${num(pricePerSqm)} ${ccy} للمتر المربع، هذا العقار ${under ? 'أقل من' : 'أعلى من'} متوسّط السوق المحلي بحوالي ${pct(absPos)}.`
+      : `At approximately ${num(pricePerSqm)} ${ccy} per square meter, this property is ${under ? 'underpriced compared to' : 'priced above'} the local market average by about ${pct(absPos)}.`,
+  );
+  bullets.push(
+    ar
+      ? `معدّل العائد الرأسمالي ${pct(cap)} ${cap >= 6 ? 'يتجاوز' : 'دون'} مرجعية السوق المعتادة 6–8%.`
+      : `The cap rate of ${pct(cap)} ${cap >= 6 ? 'comfortably exceeds' : 'sits below'} the typical 6–8% market benchmark.`,
+  );
+  bullets.push(
+    ar
+      ? `من أبرز نقاط القوّة ${under ? 'نقطة الدخول السعرية المنخفضة' : 'جودة الموقع'}، بينما من المخاطر المحتملة ${isApt ? 'ارتفاع معدّل دوران المستأجرين المعتاد في الشقق' : 'تكاليف الصيانة الأعلى'}.`
+      : `A key strength is its ${under ? 'accessible entry price' : 'location quality'}, while a potential risk is ${isApt ? 'the higher tenant turnover typical of apartments' : 'higher maintenance costs'}.`,
+  );
+
+  return bullets;
+}
+
 export interface MetricsResult {
   assumptions: FinancialAssumptions;
   metrics: InvestmentMetrics;
@@ -42,6 +104,7 @@ export interface ComparisonCandidateOut {
   pricePerSqm: number;
   pricePositionPct: number;
   score: number; // deterministic investment score 0–100
+  reasoning: string[]; // metric-grounded "AI Reasoning" bullets (per candidate)
 }
 
 export interface ComparisonResult {
@@ -118,6 +181,7 @@ export const analysisService = {
       pricePerSqm: Math.round(ppsm[s.i]),
       pricePositionPct: Math.round(s.pricePositionPct * 10) / 10,
       score: s.score,
+      reasoning: buildCandidateReasoning(s.c.property, s.c.metrics, Math.round(ppsm[s.i]), s.pricePositionPct, lang),
     }));
 
     let ranking: ComparisonResult['ranking'] = [];

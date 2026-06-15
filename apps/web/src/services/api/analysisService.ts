@@ -15,6 +15,7 @@ export interface ComparisonCandidate {
   pricePerSqm: number;
   pricePositionPct: number;
   score: number;
+  reasoning: string[];
 }
 
 export interface ComparisonResult {

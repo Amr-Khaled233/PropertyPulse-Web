@@ -9,9 +9,6 @@ import { usePaymentViewModel } from '../../viewmodels/usePaymentViewModel';
 import { useUiStore } from '../../store/uiStore';
 import { Button } from '../components/common/Button';
 
-const BANNER_IMG =
-  'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=400&q=70';
-
 export function PricingPage() {
   const { t } = useI18n();
   const vm = usePaymentViewModel();
@@ -43,47 +40,36 @@ export function PricingPage() {
       </div>
 
       <div className="pricing-layout">
-        {/* Plans + custom banner */}
-        <div className="col" style={{ gap: 18 }}>
-          <div className="plan-grid">
-            {vm.plans.map((plan) => {
-              const active = vm.selectedId === plan.id;
-              return (
-                <div
-                  key={plan.id}
-                  className={`card plan-card${plan.popular ? ' plan-popular' : ''}${active ? ' plan-active' : ''}`}
-                  onClick={() => vm.selectPlan(plan.id)}
+        {/* Plans */}
+        <div className="plan-grid">
+          {vm.plans.map((plan) => {
+            const active = vm.selectedId === plan.id;
+            return (
+              <div
+                key={plan.id}
+                className={`card plan-card${plan.popular ? ' plan-popular' : ''}${active ? ' plan-active' : ''}`}
+                onClick={() => vm.selectPlan(plan.id)}
+              >
+                {plan.popular && <span className="plan-badge">{t('pricing.mostPopular')}</span>}
+                <div className="plan-tier">{t(plan.tierKey)}</div>
+                <h3 className="plan-name">{t(plan.nameKey)}</h3>
+                <div className="plan-price">{money(plan.price)}</div>
+                <div className="muted plan-cadence">{t(plan.cadenceKey)}</div>
+                <ul className="plan-features">
+                  {plan.featureKeys.map((k) => (
+                    <li key={k}><span className="tick">✓</span>{t(k)}</li>
+                  ))}
+                </ul>
+                <Button
+                  variant={plan.popular ? 'green' : 'outline'}
+                  block
+                  onClick={(e) => { e.stopPropagation(); vm.selectPlan(plan.id); }}
                 >
-                  {plan.popular && <span className="plan-badge">{t('pricing.mostPopular')}</span>}
-                  <div className="plan-tier">{t(plan.tierKey)}</div>
-                  <h3 className="plan-name">{t(plan.nameKey)}</h3>
-                  <div className="plan-price">{money(plan.price)}</div>
-                  <div className="muted plan-cadence">{t(plan.cadenceKey)}</div>
-                  <ul className="plan-features">
-                    {plan.featureKeys.map((k) => (
-                      <li key={k}><span className="tick">✓</span>{t(k)}</li>
-                    ))}
-                  </ul>
-                  <Button
-                    variant={plan.popular ? 'green' : 'outline'}
-                    block
-                    onClick={(e) => { e.stopPropagation(); vm.selectPlan(plan.id); }}
-                  >
-                    {t(plan.ctaKey)}
-                  </Button>
-                </div>
-              );
-            })}
-          </div>
-
-          <div className="card card-pad custom-banner">
-            <div className="cb-img" style={{ backgroundImage: `url(${BANNER_IMG})` }} />
-            <div>
-              <b className="serif" style={{ fontSize: '1.05rem' }}>{t('pricing.customTitle')}</b>
-              <p className="muted" style={{ margin: '4px 0 8px', fontSize: '0.88rem' }}>{t('pricing.customDesc')}</p>
-              <a className="accent" href="mailto:sales@propertypulse.app" style={{ fontWeight: 600, fontSize: '0.85rem' }}>{t('pricing.bookCall')} →</a>
-            </div>
-          </div>
+                  {t(plan.ctaKey)}
+                </Button>
+              </div>
+            );
+          })}
         </div>
 
         {/* Secure checkout (Stripe) */}
