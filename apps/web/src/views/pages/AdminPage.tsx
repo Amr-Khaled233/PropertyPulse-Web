@@ -93,15 +93,15 @@ export function AdminPage() {
                   <tbody>
                     {vm.properties.map((p) => (
                       <tr key={p.id}>
-                        <td><div className="thumb" style={{ backgroundImage: `url(${propertyImage(p)})` }} /></td>
-                        <td>
+                        <td className="admin-thumb-cell"><div className="thumb" style={{ backgroundImage: `url(${propertyImage(p)})` }} /></td>
+                        <td data-label={t('admin.col.title')}>
                           <strong className="truncate" style={{ display: 'block', maxWidth: 220 }}>{p.title}</strong>
                           <small className="muted">{p.agentName ?? '—'}</small>
                         </td>
-                        <td>{formatCompactCurrency(p.price, p.currency)}</td>
-                        <td className="muted">{[p.address.state, p.address.city].filter(Boolean).join(' · ')}</td>
-                        <td><span className="badge badge-soft">{tx(`admin.ptype.${p.type}`, p.type)}</span></td>
-                        <td>
+                        <td data-label={t('admin.col.price')}>{formatCompactCurrency(p.price, p.currency)}</td>
+                        <td className="muted" data-label={t('admin.col.location')}>{[p.address.state, p.address.city].filter(Boolean).join(' · ')}</td>
+                        <td data-label={t('admin.col.type')}><span className="badge badge-soft">{tx(`admin.ptype.${p.type}`, p.type)}</span></td>
+                        <td data-label={t('admin.col.status')}>
                           <select
                             className="select select-sm"
                             value={p.status}
@@ -113,7 +113,7 @@ export function AdminPage() {
                             ))}
                           </select>
                         </td>
-                        <td>
+                        <td data-label={t('admin.col.featured')}>
                           <button
                             className="icon-btn icon-btn-sm"
                             title={t('admin.toggleFeatured')}
@@ -123,8 +123,8 @@ export function AdminPage() {
                             {p.featured ? '★' : '☆'}
                           </button>
                         </td>
-                        <td className="muted admin-date">{formatDate(p.createdAt)}</td>
-                        <td>
+                        <td className="muted admin-date" data-label={t('admin.col.added')}>{formatDate(p.createdAt)}</td>
+                        <td data-label={t('admin.col.actions')}>
                           <div className="center-row" style={{ gap: 6 }}>
                             <button className="icon-btn icon-btn-sm" title={t('admin.edit')} onClick={() => openEdit(p)}>✎</button>
                             <button
@@ -170,14 +170,14 @@ export function AdminPage() {
                 <tbody>
                   {vm.inquiries.map((q) => (
                     <tr key={q.id}>
-                      <td><span className="badge badge-soft">{t(`admin.kind.${q.kind}` as TranslationKey)}</span></td>
-                      <td><strong>{q.name}</strong></td>
-                      <td className="muted">
+                      <td data-label={t('admin.col.type')}><span className="badge badge-soft">{t(`admin.kind.${q.kind}` as TranslationKey)}</span></td>
+                      <td data-label={t('admin.col.name')}><strong>{q.name}</strong></td>
+                      <td className="muted" data-label={t('admin.col.contact')}>
                         <div>{q.email ?? '—'}</div>
                         {q.phone && <small>{q.phone}</small>}
                       </td>
-                      <td className="muted truncate" style={{ maxWidth: 320 }}>{q.message ?? '—'}</td>
-                      <td>
+                      <td className="muted truncate" style={{ maxWidth: 320 }} data-label={t('admin.col.message')}>{q.message ?? '—'}</td>
+                      <td data-label={t('admin.col.status')}>
                         <select
                           className="select select-sm"
                           value={q.status}
@@ -205,11 +205,11 @@ export function AdminPage() {
               <tbody>
                 {vm.users.map((u) => (
                   <tr key={u.id}>
-                    <td><strong>{u.fullName ?? '—'}</strong></td>
-                    <td className="muted">{u.email}</td>
-                    <td><span className="badge badge-soft">{tx(`admin.role.${u.role}`, u.role)}</span></td>
-                    <td><span className="badge badge-soft">{tx(`admin.plan.${u.plan ?? 'free'}`, u.plan ?? 'free')}</span></td>
-                    <td className="muted admin-date">{formatDate(u.createdAt)}</td>
+                    <td data-label={t('admin.col.name')}><strong>{u.fullName ?? '—'}</strong></td>
+                    <td className="muted" data-label={t('admin.col.email')}>{u.email}</td>
+                    <td data-label={t('admin.col.role')}><span className="badge badge-soft">{tx(`admin.role.${u.role}`, u.role)}</span></td>
+                    <td data-label={t('admin.col.plan')}><span className="badge badge-soft">{tx(`admin.plan.${u.plan ?? 'free'}`, u.plan ?? 'free')}</span></td>
+                    <td className="muted admin-date" data-label={t('admin.col.joined')}>{formatDate(u.createdAt)}</td>
                   </tr>
                 ))}
               </tbody>
