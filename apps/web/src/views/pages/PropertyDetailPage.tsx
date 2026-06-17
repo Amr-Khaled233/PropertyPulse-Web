@@ -55,7 +55,7 @@ export function PropertyDetailPage() {
         </div>
       </div>
 
-      <div className="row wrap" style={{ gap: 22, alignItems: 'flex-start' }}>
+      <div className="row wrap" style={{ gap: 22, alignItems: 'stretch' }}>
         <div className="grow card card-pad" style={{ minWidth: 280 }}>
           <span className="eyebrow">✦ {t('detail.analysis')}</span>
           <p className="muted" style={{ marginTop: 12 }}>{p.description}</p>
