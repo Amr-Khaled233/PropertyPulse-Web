@@ -18,7 +18,8 @@ export const propertyController = {
   }),
 
   getById: asyncHandler(async (req, res) => {
-    const property = await propertyService.getById(req.params.id);
+    const lang = typeof req.query.lang === 'string' ? req.query.lang : undefined;
+    const property = await propertyService.getById(req.params.id, lang);
     ok(res, property);
   }),
 

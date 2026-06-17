@@ -2,8 +2,9 @@
 // Property Management (CRUD + moderation), CRM inquiries, and users overview.
 
 import { useState } from 'react';
-import type { Property, ListingStatus, InquiryStatus, Inquiry } from '@propertypulse/shared-types';
+import type { Property, ListingStatus, InquiryStatus } from '@propertypulse/shared-types';
 import { useAdminViewModel } from '../../viewmodels/useAdminViewModel';
+import { useI18n, type TranslationKey } from '../../i18n';
 import { formatCompactCurrency, formatDate } from '../../utils/formatters';
 import { propertyImage } from '../../utils/propertyImages';
 import { Button } from '../components/common/Button';
@@ -13,24 +14,18 @@ import { PropertyFormModal } from '../components/admin/PropertyFormModal';
 
 type Tab = 'properties' | 'inquiries' | 'users';
 
-const STATUS_META: Record<ListingStatus, { label: string; color: string }> = {
-  for_sale: { label: 'Available', color: 'var(--green)' },
-  for_rent: { label: 'Rented', color: '#2563eb' },
-  sold: { label: 'Sold', color: 'var(--text-muted)' },
-  off_market: { label: 'Pending', color: 'var(--orange)' },
+const STATUS_COLOR: Record<ListingStatus, string> = {
+  for_sale: 'var(--green)',
+  for_rent: '#2563eb',
+  sold: 'var(--text-muted)',
+  off_market: 'var(--orange)',
 };
-
-const KIND_LABEL: Record<Inquiry['kind'], string> = {
-  buyer_inquiry: 'Buyer inquiry',
-  viewing_request: 'Viewing request',
-  contact_message: 'Contact message',
-  application: 'Application',
-};
-
+const LISTING_STATUSES: ListingStatus[] = ['for_sale', 'for_rent', 'sold', 'off_market'];
 const INQUIRY_STATUSES: InquiryStatus[] = ['new', 'in_progress', 'closed'];
 
 export function AdminPage() {
   const vm = useAdminViewModel();
+  const { t } = useI18n();
   const [tab, setTab] = useState<Tab>('properties');
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Property | null>(null);
@@ -38,22 +33,28 @@ export function AdminPage() {
   const openAdd = () => { setEditing(null); setModalOpen(true); };
   const openEdit = (p: Property) => { setEditing(p); setModalOpen(true); };
 
+  // Safe-localize dynamic enum values (fall back to the raw value if unmapped).
+  const tx = (key: string, fallback: string) => {
+    const v = t(key as TranslationKey);
+    return v === key ? fallback : v;
+  };
+
   const stats = [
-    { icon: '🏢', label: 'Listings', value: vm.total.toLocaleString() },
-    { icon: '👥', label: 'Users', value: vm.users.length.toLocaleString() },
-    { icon: '✉️', label: 'Open inquiries', value: String(vm.inquiries.filter((i) => i.status !== 'closed').length) },
-    { icon: '⭐', label: 'Featured (page)', value: String(vm.properties.filter((p) => p.featured).length) },
+    { icon: '🏢', label: t('admin.stat.listings'), value: vm.total.toLocaleString() },
+    { icon: '👥', label: t('admin.stat.users'), value: vm.users.length.toLocaleString() },
+    { icon: '✉️', label: t('admin.stat.openInquiries'), value: String(vm.inquiries.filter((i) => i.status !== 'closed').length) },
+    { icon: '⭐', label: t('admin.stat.featured'), value: String(vm.properties.filter((p) => p.featured).length) },
   ];
 
   return (
     <div className="col" style={{ gap: 20 }}>
       <div className="page-header">
         <div>
-          <span className="eyebrow">Admin Console</span>
-          <h1 style={{ margin: '4px 0 0' }}>Management Dashboard</h1>
+          <span className="eyebrow">{t('admin.console')}</span>
+          <h1 style={{ margin: '4px 0 0' }}>{t('admin.pageTitle')}</h1>
         </div>
         {tab === 'properties' && (
-          <Button variant="green" size="sm" onClick={openAdd}>+ Add property</Button>
+          <Button variant="green" size="sm" onClick={openAdd}>{t('admin.addProperty')}</Button>
         )}
       </div>
 
@@ -70,7 +71,7 @@ export function AdminPage() {
       <div className="tabs">
         {(['properties', 'inquiries', 'users'] as Tab[]).map((tk) => (
           <button key={tk} className={`tab${tab === tk ? ' active' : ''}`} onClick={() => setTab(tk)}>
-            {tk === 'properties' ? 'Property Management' : tk === 'inquiries' ? 'Inquiries (CRM)' : 'Users'}
+            {tk === 'properties' ? t('admin.tab.properties') : tk === 'inquiries' ? t('admin.tab.inquiries') : t('admin.tab.users')}
           </button>
         ))}
       </div>
@@ -78,15 +79,15 @@ export function AdminPage() {
       {tab === 'properties' && (
         <div className="card card-pad">
           {vm.loadingProps ? (
-            <Loader label="Loading properties…" />
+            <Loader label={t('admin.loadingProps')} />
           ) : (
             <>
               <div className="table-scroll">
                 <table className="table admin-table">
                   <thead>
                     <tr>
-                      <th></th><th>Title</th><th>Price</th><th>Location</th>
-                      <th>Type</th><th>Status</th><th>Featured</th><th>Added</th><th>Actions</th>
+                      <th></th><th>{t('admin.col.title')}</th><th>{t('admin.col.price')}</th><th>{t('admin.col.location')}</th>
+                      <th>{t('admin.col.type')}</th><th>{t('admin.col.status')}</th><th>{t('admin.col.featured')}</th><th>{t('admin.col.added')}</th><th>{t('admin.col.actions')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -99,23 +100,23 @@ export function AdminPage() {
                         </td>
                         <td>{formatCompactCurrency(p.price, p.currency)}</td>
                         <td className="muted">{[p.address.state, p.address.city].filter(Boolean).join(' · ')}</td>
-                        <td><span className="badge badge-soft">{p.type}</span></td>
+                        <td><span className="badge badge-soft">{tx(`admin.ptype.${p.type}`, p.type)}</span></td>
                         <td>
                           <select
                             className="select select-sm"
                             value={p.status}
                             onChange={(e) => vm.setStatus(p, e.target.value as ListingStatus)}
-                            style={{ color: STATUS_META[p.status].color, fontWeight: 600 }}
+                            style={{ color: STATUS_COLOR[p.status], fontWeight: 600 }}
                           >
-                            {(Object.keys(STATUS_META) as ListingStatus[]).map((s) => (
-                              <option key={s} value={s}>{STATUS_META[s].label}</option>
+                            {LISTING_STATUSES.map((s) => (
+                              <option key={s} value={s}>{t(`admin.status.${s}` as TranslationKey)}</option>
                             ))}
                           </select>
                         </td>
                         <td>
                           <button
                             className="icon-btn icon-btn-sm"
-                            title="Toggle featured"
+                            title={t('admin.toggleFeatured')}
                             onClick={() => vm.toggleFeatured(p)}
                             style={{ color: p.featured ? 'var(--orange)' : 'var(--text-muted)' }}
                           >
@@ -125,10 +126,10 @@ export function AdminPage() {
                         <td className="muted">{formatDate(p.createdAt)}</td>
                         <td>
                           <div className="center-row" style={{ gap: 6 }}>
-                            <button className="icon-btn icon-btn-sm" title="Edit" onClick={() => openEdit(p)}>✎</button>
+                            <button className="icon-btn icon-btn-sm" title={t('admin.edit')} onClick={() => openEdit(p)}>✎</button>
                             <button
                               className="icon-btn icon-btn-sm"
-                              title={p.approved ? 'Approved — click to reject' : 'Rejected — click to approve'}
+                              title={p.approved ? t('admin.approved') : t('admin.rejected')}
                               onClick={() => vm.setApproved(p, !p.approved)}
                               style={{ color: p.approved ? 'var(--green)' : 'var(--orange)' }}
                             >
@@ -136,8 +137,8 @@ export function AdminPage() {
                             </button>
                             <button
                               className="icon-btn icon-btn-sm danger"
-                              title="Delete"
-                              onClick={() => { if (confirm(`Delete "${p.title}"?`)) vm.deleteProperty(p.id); }}
+                              title={t('admin.delete')}
+                              onClick={() => { if (confirm(t('admin.deleteConfirm').replace('{title}', p.title))) vm.deleteProperty(p.id); }}
                             >🗑</button>
                           </div>
                         </td>
@@ -155,21 +156,21 @@ export function AdminPage() {
       {tab === 'inquiries' && (
         <div className="card card-pad">
           {vm.loadingInquiries ? (
-            <Loader label="Loading inquiries…" />
+            <Loader label={t('admin.loadingInquiries')} />
           ) : vm.inquiries.length === 0 ? (
             <p className="muted center" style={{ padding: 24 }}>
-              No inquiries yet. (Run <code>supabase/admin-setup.sql</code> to create the CRM table.)
+              {t('admin.noInquiries')} <code>{t('admin.noInquiriesHint')}</code>
             </p>
           ) : (
             <div className="table-scroll">
               <table className="table admin-table">
                 <thead>
-                  <tr><th>Type</th><th>Name</th><th>Contact</th><th>Message</th><th>Status</th></tr>
+                  <tr><th>{t('admin.col.type')}</th><th>{t('admin.col.name')}</th><th>{t('admin.col.contact')}</th><th>{t('admin.col.message')}</th><th>{t('admin.col.status')}</th></tr>
                 </thead>
                 <tbody>
                   {vm.inquiries.map((q) => (
                     <tr key={q.id}>
-                      <td><span className="badge badge-soft">{KIND_LABEL[q.kind]}</span></td>
+                      <td><span className="badge badge-soft">{t(`admin.kind.${q.kind}` as TranslationKey)}</span></td>
                       <td><strong>{q.name}</strong></td>
                       <td className="muted">
                         <div>{q.email ?? '—'}</div>
@@ -183,9 +184,7 @@ export function AdminPage() {
                           onChange={(e) => vm.setInquiryStatus(q.id, e.target.value as InquiryStatus)}
                         >
                           {INQUIRY_STATUSES.map((s) => (
-                            <option key={s} value={s}>
-                              {s === 'in_progress' ? 'In Progress' : s === 'new' ? 'New' : 'Closed'}
-                            </option>
+                            <option key={s} value={s}>{t(`admin.iStatus.${s}` as TranslationKey)}</option>
                           ))}
                         </select>
                       </td>
@@ -202,14 +201,14 @@ export function AdminPage() {
         <div className="card card-pad">
           <div className="table-scroll">
             <table className="table admin-table">
-              <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Plan</th><th>Joined</th></tr></thead>
+              <thead><tr><th>{t('admin.col.name')}</th><th>{t('admin.col.email')}</th><th>{t('admin.col.role')}</th><th>{t('admin.col.plan')}</th><th>{t('admin.col.joined')}</th></tr></thead>
               <tbody>
                 {vm.users.map((u) => (
                   <tr key={u.id}>
                     <td><strong>{u.fullName ?? '—'}</strong></td>
                     <td className="muted">{u.email}</td>
-                    <td><span className="badge badge-soft">{u.role}</span></td>
-                    <td><span className="badge badge-soft">{u.plan ?? 'free'}</span></td>
+                    <td><span className="badge badge-soft">{tx(`admin.role.${u.role}`, u.role)}</span></td>
+                    <td><span className="badge badge-soft">{tx(`admin.plan.${u.plan ?? 'free'}`, u.plan ?? 'free')}</span></td>
                     <td className="muted">{formatDate(u.createdAt)}</td>
                   </tr>
                 ))}

@@ -1,6 +1,7 @@
 // Property service — business logic around property listings.
 
 import { propertyRepository, type PropertyFilters } from '../repositories/property.repository.js';
+import { localizeProperty } from './translation.service.js';
 import { ApiError } from '../utils/apiError.js';
 import type { Property, Paginated } from '@propertypulse/shared-types';
 
@@ -13,10 +14,10 @@ export const propertyService = {
     return propertyRepository.listTowns(city);
   },
 
-  async getById(id: string): Promise<Property> {
+  async getById(id: string, lang?: string): Promise<Property> {
     const property = await propertyRepository.getById(id);
     if (!property) throw ApiError.notFound('Property not found');
-    return property;
+    return localizeProperty(property, lang);
   },
 
   create(input: Omit<Property, 'id' | 'createdAt' | 'updatedAt'>): Promise<Property> {

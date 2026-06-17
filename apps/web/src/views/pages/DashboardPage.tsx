@@ -55,6 +55,7 @@ export function DashboardPage() {
           {vm.loading ? (
             <Loader />
           ) : (
+            <div className="table-scroll">
             <table className="table">
               <thead>
                 <tr>
@@ -97,6 +98,7 @@ export function DashboardPage() {
                 )}
               </tbody>
             </table>
+            </div>
           )}
         </div>
       </div>

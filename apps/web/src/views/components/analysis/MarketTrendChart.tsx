@@ -26,16 +26,19 @@ const fmtMonth = (period: string): string => {
 export function MarketTrendChart({ data, height = 260 }: Props) {
   return (
     <ResponsiveContainer width="100%" height={height}>
-      <LineChart data={data} margin={{ top: 10, right: 16, left: 0, bottom: 0 }}>
+      <LineChart data={data} margin={{ top: 10, right: 16, left: 0, bottom: 14 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
         <XAxis
           dataKey="period"
           tickFormatter={fmtMonth}
           interval={0}
-          tick={{ fontSize: 10.5, fill: 'var(--text-muted)' }}
+          angle={-35}
+          textAnchor="end"
+          height={46}
+          tick={{ fontSize: 10, fill: 'var(--text-muted)' }}
           tickLine={false}
           axisLine={false}
-          tickMargin={8}
+          tickMargin={6}
         />
         <YAxis tickFormatter={compact} tick={{ fontSize: 11, fill: 'var(--text-muted)' }} tickLine={false} axisLine={false} width={52} />
         <Tooltip

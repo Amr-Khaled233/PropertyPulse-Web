@@ -9,9 +9,12 @@ import { useUiStore } from '../store/uiStore';
 import { QUERY_KEYS } from '../utils/constants';
 
 export function usePropertyAnalysisViewModel(propertyId: string) {
+  const lang = useUiStore((s) => s.lang);
+
   const property = useQuery({
-    queryKey: [QUERY_KEYS.property, propertyId],
-    queryFn: () => propertyService.getById(propertyId),
+    // lang is part of the key so switching language refetches the localized copy.
+    queryKey: [QUERY_KEYS.property, propertyId, lang],
+    queryFn: () => propertyService.getById(propertyId, lang),
     enabled: !!propertyId,
   });
 
@@ -21,7 +24,6 @@ export function usePropertyAnalysisViewModel(propertyId: string) {
     enabled: !!propertyId,
   });
 
-  const lang = useUiStore((s) => s.lang);
   const generateReport = useMutation({
     mutationFn: () => reportService.generate(propertyId, {}, lang),
   });

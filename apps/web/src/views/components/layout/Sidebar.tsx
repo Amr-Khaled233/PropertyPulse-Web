@@ -26,7 +26,7 @@ export function Sidebar() {
         <span className="logo">◧</span>
         <span>
           <b>{t('app.name')}</b>
-          <small>{isAdmin ? 'Admin Console' : 'Investor Portal'}</small>
+          <small>{isAdmin ? t('admin.console') : t('admin.investorPortal')}</small>
         </span>
       </div>
 
