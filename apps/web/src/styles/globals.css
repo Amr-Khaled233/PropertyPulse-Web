@@ -302,10 +302,10 @@ a { color: inherit; text-decoration: none; }
 /* ---------- Table ---------- */
 .table { width: 100%; border-collapse: collapse; }
 .table th {
-  text-align: left; font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase;
+  text-align: start; font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase;
   color: var(--text-muted); font-weight: 600; padding: 10px 12px; border-bottom: 1px solid var(--border);
 }
-.table td { padding: 14px 12px; border-bottom: 1px solid var(--border); font-size: 0.9rem; overflow-wrap: anywhere; word-break: break-word; }
+.table td { padding: 14px 12px; border-bottom: 1px solid var(--border); font-size: 0.9rem; text-align: start; overflow-wrap: break-word; }
 .table tr:last-child td { border-bottom: none; }
 .table tbody tr:hover { background: var(--surface-alt); }
 
@@ -384,8 +384,12 @@ a { color: inherit; text-decoration: none; }
 .tab.active { color: var(--navy); border-bottom-color: var(--green); }
 [data-theme='dark'] .tab.active { color: var(--text); }
 .table-scroll { overflow-x: auto; }
-.admin-table { width: 100%; }
+/* Keep a comfortable min-width so the 9 columns never crush onto each other
+   (e.g. the date breaking to "202 6"); the .table-scroll wrapper handles the
+   horizontal scroll inside the card on small screens instead of the page. */
+.admin-table { width: 100%; min-width: 820px; }
 .admin-table td { vertical-align: middle; }
+.admin-table .admin-date { white-space: nowrap; }
 .admin-table small { display: block; font-size: 0.72rem; }
 .thumb {
   width: 52px; height: 40px; border-radius: 8px; background-size: cover;

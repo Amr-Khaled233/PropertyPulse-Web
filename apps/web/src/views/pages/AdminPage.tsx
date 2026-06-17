@@ -123,7 +123,7 @@ export function AdminPage() {
                             {p.featured ? '★' : '☆'}
                           </button>
                         </td>
-                        <td className="muted">{formatDate(p.createdAt)}</td>
+                        <td className="muted admin-date">{formatDate(p.createdAt)}</td>
                         <td>
                           <div className="center-row" style={{ gap: 6 }}>
                             <button className="icon-btn icon-btn-sm" title={t('admin.edit')} onClick={() => openEdit(p)}>✎</button>
@@ -209,7 +209,7 @@ export function AdminPage() {
                     <td className="muted">{u.email}</td>
                     <td><span className="badge badge-soft">{tx(`admin.role.${u.role}`, u.role)}</span></td>
                     <td><span className="badge badge-soft">{tx(`admin.plan.${u.plan ?? 'free'}`, u.plan ?? 'free')}</span></td>
-                    <td className="muted">{formatDate(u.createdAt)}</td>
+                    <td className="muted admin-date">{formatDate(u.createdAt)}</td>
                   </tr>
                 ))}
               </tbody>
