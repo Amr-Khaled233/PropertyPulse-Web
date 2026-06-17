@@ -56,22 +56,6 @@ export function ReportViewer({ report }: Props) {
         <h3>Market Trends</h3>
         <MarketTrendChart data={report.marketTrends} />
       </div>
-
-      {report.neighborhood && (
-        <div className="card card-pad">
-          <h3>{report.neighborhood.name}</h3>
-          <p className="muted">{report.neighborhood.summary}</p>
-          <div className="row wrap" style={{ gap: 8 }}>
-            {report.neighborhood.amenities.map((a) => (
-              <span key={a} className="badge badge-soft">{a}</span>
-            ))}
-          </div>
-        </div>
-      )}
-
-      <div className="muted" style={{ fontSize: '0.8rem' }}>
-        Sources: {report.sources.join(' · ')}
-      </div>
     </div>
   );
 }

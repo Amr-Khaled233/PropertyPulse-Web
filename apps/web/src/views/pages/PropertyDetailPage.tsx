@@ -67,7 +67,7 @@ export function PropertyDetailPage() {
           </Link>
         </div>
 
-        <div className="card-dark card-pad" style={{ width: 300, maxWidth: '100%', flexShrink: 0 }}>
+        <div className="card-dark card-pad app-aside" style={{ width: 300, maxWidth: '100%', flexShrink: 0 }}>
           <span className="stat-label" style={{ color: 'var(--text-on-dark-muted)' }}>{t('detail.snapshot')}</span>
           <div className="col" style={{ gap: 10, margin: '12px 0 16px' }}>
             <div className="between"><span style={{ color: 'var(--text-on-dark-muted)' }}>{t('detail.netYield')}</span><b style={{ color: '#fff' }}>{formatPercent(m.netRentalYield)}</b></div>

@@ -38,7 +38,7 @@ export function MarketTrendsPage() {
           )}
         </div>
 
-        <div className="card-dark card-pad" style={{ width: 280, maxWidth: '100%', flexShrink: 0 }}>
+        <div className="card-dark card-pad app-aside" style={{ width: 280, maxWidth: '100%', flexShrink: 0 }}>
           <span className="eyebrow" style={{ color: 'var(--green)' }}>{t('market.analystNote')}</span>
           <p style={{ color: 'var(--text-on-dark)', marginTop: 10, fontSize: '0.9rem' }}>
             {t('market.note')

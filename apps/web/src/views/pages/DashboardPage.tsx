@@ -103,7 +103,7 @@ export function DashboardPage() {
         </div>
       </div>
 
-      <div style={{ width: 340, maxWidth: '100%', flexShrink: 0 }}>
+      <div className="app-aside" style={{ width: 340, maxWidth: '100%', flexShrink: 0 }}>
         <AdvisorPanel />
       </div>
     </div>
