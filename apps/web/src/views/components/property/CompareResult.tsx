@@ -4,7 +4,7 @@
 // an investment-score line, and the AI rationale.
 
 import type { ComparisonResult, ComparisonCandidate } from '../../../services/api/analysisService';
-import { useI18n } from '../../../i18n';
+import { useI18n, type TranslationKey } from '../../../i18n';
 
 // Mobile theme tokens (kept exact so Web & Mobile never disagree).
 const EMERALD = '#0B9972';
@@ -69,7 +69,7 @@ function CandidateCard({ c, rank, rationale }: { c: ComparisonCandidate; rank: n
       <div className="cmp-head">
         <span className="cmp-rank" style={isBest ? { background: EMERALD, color: '#fff' } : undefined}>{rank}</span>
         <strong className="cmp-title truncate">{c.property.title}</strong>
-        <span className="cmp-pill" style={{ background: recColor }}>{c.recommendation.toUpperCase()}</span>
+        <span className="cmp-pill" style={{ background: recColor }}>{t(`compare.rec.${c.recommendation}` as TranslationKey)}</span>
       </div>
 
       {/* price */}

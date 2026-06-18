@@ -3,9 +3,11 @@
 // pricing data, selection, card fields and the (mock) checkout action.
 
 import { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { paymentService, type PlanId } from '../services/api/paymentService';
 import { useUiStore } from '../store/uiStore';
 import { useAuthStore } from '../store/authStore';
+import { ROUTES } from '../routes/routes';
 import type { TranslationKey } from '../i18n';
 
 export interface Plan {
@@ -53,6 +55,7 @@ export function usePaymentViewModel() {
   const pushToast = useUiStore((s) => s.pushToast);
   const user = useAuthStore((s) => s.user);
   const setUser = useAuthStore((s) => s.setUser);
+  const navigate = useNavigate();
   const [selectedId, setSelectedId] = useState<PlanId>('pro');
   const [processing, setProcessing] = useState(false);
 
@@ -74,8 +77,11 @@ export function usePaymentViewModel() {
       await paymentService.subscribe({ plan: selected.id, amount: total, currency: CURRENCY });
       if (user) setUser({ ...user, plan: selected.id });
       pushToast(`Subscription activated — welcome to ${planName}!`, 'success');
+      navigate(ROUTES.dashboard); // success → take the user to their dashboard
     } catch {
+      // Failure → stay on the pricing page so they can retry the payment.
       pushToast('Payment failed. Please try again.', 'error');
+      navigate(ROUTES.pricing, { replace: true });
     } finally {
       setProcessing(false);
     }
@@ -87,8 +93,11 @@ export function usePaymentViewModel() {
       const res = await paymentService.confirm(sessionId);
       if (user) setUser({ ...user, plan: res.plan });
       pushToast(`Payment successful — welcome to ${res.plan.toUpperCase()}!`, 'success');
+      navigate(ROUTES.dashboard); // success → go to the dashboard
     } catch {
-      pushToast('We could not confirm your payment.', 'error');
+      // Could not confirm → send them back to pricing to try again.
+      pushToast('We could not confirm your payment. Please try again.', 'error');
+      navigate(ROUTES.pricing, { replace: true });
     }
   }
 
