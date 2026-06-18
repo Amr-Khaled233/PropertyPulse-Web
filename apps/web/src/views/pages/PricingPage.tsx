@@ -21,7 +21,10 @@ export function PricingPage() {
     const sessionId = params.get('session_id');
     const canceled = params.get('canceled');
     if (sessionId) {
-      vm.confirmReturn(sessionId).finally(() => setParams({}, { replace: true }));
+      // confirmReturn navigates on its own (dashboard on success, back to pricing
+      // on failure), so we must NOT also setParams here — that would override the
+      // navigation and bounce the user back to /pricing.
+      void vm.confirmReturn(sessionId);
     } else if (canceled) {
       pushToast('Payment canceled.', 'info');
       setParams({}, { replace: true });
