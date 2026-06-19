@@ -10,6 +10,14 @@ export const adminService = {
     return adminRepository.listUsers();
   },
 
+  updateUser(id: string, patch: { plan?: UserProfile['plan']; role?: UserProfile['role'] }): Promise<UserProfile> {
+    return adminRepository.updateUser(id, patch);
+  },
+
+  deleteUser(id: string): Promise<void> {
+    return adminRepository.deleteUser(id);
+  },
+
   // --- Property management -------------------------------------------------
   createProperty(input: Omit<Property, 'id' | 'createdAt' | 'updatedAt'>): Promise<Property> {
     return propertyRepository.create(input);
@@ -32,5 +40,9 @@ export const adminService = {
 
   setInquiryStatus(id: string, status: InquiryStatus): Promise<Inquiry> {
     return adminRepository.setInquiryStatus(id, status);
+  },
+
+  deleteInquiry(id: string): Promise<Inquiry> {
+    return adminRepository.deleteInquiry(id);
   },
 };

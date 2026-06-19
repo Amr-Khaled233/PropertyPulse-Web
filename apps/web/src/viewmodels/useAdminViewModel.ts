@@ -6,7 +6,7 @@ import { adminService, type PropertyDraft } from '../services/api/adminService';
 import { propertyService } from '../services/api/propertyService';
 import { useUiStore } from '../store/uiStore';
 import { toErrorMessage } from '../services/api/apiClient';
-import type { Property, InquiryStatus, ListingStatus } from '@propertypulse/shared-types';
+import type { Property, InquiryStatus, ListingStatus, PlanTier, UserProfile } from '@propertypulse/shared-types';
 
 const PAGE_SIZE = 10;
 
@@ -54,6 +54,29 @@ export function useAdminViewModel() {
     onError: (e) => pushToast(toErrorMessage(e), 'error'),
   });
 
+  const inquiryDeleteMut = useMutation({
+    mutationFn: (id: string) => adminService.deleteInquiry(id),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['admin', 'inquiries'] }); pushToast('Inquiry deleted — the user was notified.', 'success'); },
+    onError: (e) => pushToast(toErrorMessage(e), 'error'),
+  });
+
+  function invalidateUsers() {
+    qc.invalidateQueries({ queryKey: ['admin', 'users'] });
+  }
+
+  const userUpdateMut = useMutation({
+    mutationFn: ({ id, patch }: { id: string; patch: { plan?: PlanTier; role?: UserProfile['role'] } }) =>
+      adminService.updateUser(id, patch),
+    onSuccess: () => { invalidateUsers(); pushToast('User updated.', 'success'); },
+    onError: (e) => pushToast(toErrorMessage(e), 'error'),
+  });
+
+  const userDeleteMut = useMutation({
+    mutationFn: (id: string) => adminService.deleteUser(id),
+    onSuccess: () => { invalidateUsers(); pushToast('User deleted.', 'success'); },
+    onError: (e) => pushToast(toErrorMessage(e), 'error'),
+  });
+
   return {
     // property table
     page,
@@ -76,6 +99,9 @@ export function useAdminViewModel() {
     setStatus: (p: Property, status: ListingStatus) => updateMut.mutate({ id: p.id, patch: { status } }),
     setApproved: (p: Property, approved: boolean) => updateMut.mutate({ id: p.id, patch: { approved } }),
     setInquiryStatus: (id: string, status: InquiryStatus) => inquiryMut.mutate({ id, status }),
+    deleteInquiry: (id: string) => inquiryDeleteMut.mutate(id),
+    setUserPlan: (id: string, plan: PlanTier) => userUpdateMut.mutate({ id, patch: { plan } }),
+    deleteUser: (id: string) => userDeleteMut.mutate(id),
     saving: createMut.isPending || updateMut.isPending,
   };
 }

@@ -3,7 +3,9 @@
 
 export type InquiryKind = 'buyer_inquiry' | 'viewing_request' | 'contact_message' | 'application';
 
-export type InquiryStatus = 'new' | 'in_progress' | 'closed';
+// 'deleted' is a virtual status: an admin soft-deletes an inquiry, which hides it
+// from the CRM but still surfaces it to the owner as a "deleted" notification.
+export type InquiryStatus = 'new' | 'in_progress' | 'closed' | 'deleted';
 
 export interface Inquiry {
   id: string;

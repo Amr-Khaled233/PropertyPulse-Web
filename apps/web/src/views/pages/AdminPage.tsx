@@ -2,7 +2,7 @@
 // Property Management (CRUD + moderation), CRM inquiries, and users overview.
 
 import { useState } from 'react';
-import type { Property, ListingStatus, InquiryStatus } from '@propertypulse/shared-types';
+import type { Property, ListingStatus, InquiryStatus, PlanTier } from '@propertypulse/shared-types';
 import { useAdminViewModel } from '../../viewmodels/useAdminViewModel';
 import { useI18n, type TranslationKey } from '../../i18n';
 import { formatCompactCurrency, formatDate } from '../../utils/formatters';
@@ -22,6 +22,7 @@ const STATUS_COLOR: Record<ListingStatus, string> = {
 };
 const LISTING_STATUSES: ListingStatus[] = ['for_sale', 'for_rent', 'sold', 'off_market'];
 const INQUIRY_STATUSES: InquiryStatus[] = ['new', 'in_progress', 'closed'];
+const USER_PLANS: PlanTier[] = ['free', 'pro'];
 
 export function AdminPage() {
   const vm = useAdminViewModel();
@@ -165,7 +166,7 @@ export function AdminPage() {
             <div className="table-scroll">
               <table className="table admin-table">
                 <thead>
-                  <tr><th>{t('admin.col.type')}</th><th>{t('admin.col.name')}</th><th>{t('admin.col.contact')}</th><th>{t('admin.col.message')}</th><th>{t('admin.col.status')}</th></tr>
+                  <tr><th>{t('admin.col.type')}</th><th>{t('admin.col.name')}</th><th>{t('admin.col.contact')}</th><th>{t('admin.col.message')}</th><th>{t('admin.col.status')}</th><th>{t('admin.col.actions')}</th></tr>
                 </thead>
                 <tbody>
                   {vm.inquiries.map((q) => (
@@ -188,6 +189,13 @@ export function AdminPage() {
                           ))}
                         </select>
                       </td>
+                      <td data-label={t('admin.col.actions')}>
+                        <button
+                          className="icon-btn icon-btn-sm danger"
+                          title={t('admin.delete')}
+                          onClick={() => { if (confirm(t('admin.deleteInquiryConfirm'))) vm.deleteInquiry(q.id); }}
+                        >🗑</button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -201,15 +209,34 @@ export function AdminPage() {
         <div className="card card-pad">
           <div className="table-scroll">
             <table className="table admin-table">
-              <thead><tr><th>{t('admin.col.name')}</th><th>{t('admin.col.email')}</th><th>{t('admin.col.role')}</th><th>{t('admin.col.plan')}</th><th>{t('admin.col.joined')}</th></tr></thead>
+              <thead><tr><th>{t('admin.col.name')}</th><th>{t('admin.col.email')}</th><th>{t('admin.col.role')}</th><th>{t('admin.col.plan')}</th><th>{t('admin.col.joined')}</th><th>{t('admin.col.actions')}</th></tr></thead>
               <tbody>
                 {vm.users.map((u) => (
                   <tr key={u.id}>
                     <td data-label={t('admin.col.name')}><strong>{u.fullName ?? '—'}</strong></td>
                     <td className="muted" data-label={t('admin.col.email')}>{u.email}</td>
                     <td data-label={t('admin.col.role')}><span className="badge badge-soft">{tx(`admin.role.${u.role}`, u.role)}</span></td>
-                    <td data-label={t('admin.col.plan')}><span className="badge badge-soft">{tx(`admin.plan.${u.plan ?? 'free'}`, u.plan ?? 'free')}</span></td>
+                    <td data-label={t('admin.col.plan')}>
+                      <select
+                        className="select select-sm"
+                        value={u.plan ?? 'free'}
+                        onChange={(e) => vm.setUserPlan(u.id, e.target.value as PlanTier)}
+                      >
+                        {USER_PLANS.map((p) => (
+                          <option key={p} value={p}>{t(`admin.plan.${p}` as TranslationKey)}</option>
+                        ))}
+                      </select>
+                    </td>
                     <td className="muted admin-date" data-label={t('admin.col.joined')}>{formatDate(u.createdAt)}</td>
+                    <td data-label={t('admin.col.actions')}>
+                      {u.role !== 'admin' && (
+                        <button
+                          className="icon-btn icon-btn-sm danger"
+                          title={t('admin.delete')}
+                          onClick={() => { if (confirm(t('admin.deleteUserConfirm').replace('{name}', u.fullName || u.email))) vm.deleteUser(u.id); }}
+                        >🗑</button>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>

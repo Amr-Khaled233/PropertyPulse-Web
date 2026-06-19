@@ -69,6 +69,9 @@ export const apiClient = {
   async put<T>(url: string, data?: unknown) {
     return unwrap<T>(instance.put<ApiResponse<T>>(url, data));
   },
+  async patch<T>(url: string, data?: unknown) {
+    return unwrap<T>(instance.patch<ApiResponse<T>>(url, data));
+  },
   async delete<T>(url: string) {
     return unwrap<T>(instance.delete<ApiResponse<T>>(url));
   },

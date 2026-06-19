@@ -5,6 +5,7 @@ import type {
   UserProfile,
   Inquiry,
   InquiryStatus,
+  PlanTier,
 } from '@propertypulse/shared-types';
 import { apiClient } from './apiClient';
 
@@ -14,6 +15,15 @@ export const adminService = {
   async listUsers(): Promise<UserProfile[]> {
     const { data } = await apiClient.get<UserProfile[]>('/admin/users');
     return data;
+  },
+
+  async updateUser(id: string, patch: { plan?: PlanTier; role?: UserProfile['role'] }): Promise<UserProfile> {
+    const { data } = await apiClient.patch<UserProfile>(`/admin/users/${id}`, patch);
+    return data;
+  },
+
+  async deleteUser(id: string): Promise<void> {
+    await apiClient.delete(`/admin/users/${id}`);
   },
 
   async createProperty(input: PropertyDraft): Promise<Property> {
@@ -38,5 +48,9 @@ export const adminService = {
   async setInquiryStatus(id: string, status: InquiryStatus): Promise<Inquiry> {
     const { data } = await apiClient.put<Inquiry>(`/admin/inquiries/${id}/status`, { status });
     return data;
+  },
+
+  async deleteInquiry(id: string): Promise<void> {
+    await apiClient.delete(`/admin/inquiries/${id}`);
   },
 };

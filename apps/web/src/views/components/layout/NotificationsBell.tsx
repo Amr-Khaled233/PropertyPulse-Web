@@ -1,35 +1,18 @@
-// Notifications bell — shows a red badge for unseen admin status updates on the
-// user's inquiries, and a dropdown listing them. Matches the mobile app.
+// Notifications bell — a red badge for unseen items and a dropdown listing them.
+// Role-aware via the viewmodel: investors see updates on their inquiries; admins
+// see new inquiries and new users.
 
 import { useEffect, useRef, useState } from 'react';
-import type { Inquiry, InquiryKind, InquiryStatus } from '@propertypulse/shared-types';
-import { useNotificationsViewModel } from '../../../viewmodels/useNotificationsViewModel';
+import { useNotificationsViewModel, type NotifTone } from '../../../viewmodels/useNotificationsViewModel';
 import { useI18n } from '../../../i18n';
 import { formatDate } from '../../../utils/formatters';
 
-const STATUS_COLOR: Record<InquiryStatus, string> = {
-  new: '#2563eb', // info / blue
+const TONE_COLOR: Record<NotifTone, string> = {
+  new: '#2563eb', // blue
   in_progress: '#D4850A', // amber
   closed: '#0B9972', // green
-};
-
-const KIND_KEY: Record<InquiryKind, 'notif.kind.buyer_inquiry' | 'notif.kind.viewing_request' | 'notif.kind.contact_message' | 'notif.kind.application'> = {
-  buyer_inquiry: 'notif.kind.buyer_inquiry',
-  viewing_request: 'notif.kind.viewing_request',
-  contact_message: 'notif.kind.contact_message',
-  application: 'notif.kind.application',
-};
-
-const STATUS_KEY: Record<InquiryStatus, 'notif.status.new' | 'notif.status.in_progress' | 'notif.status.closed'> = {
-  new: 'notif.status.new',
-  in_progress: 'notif.status.in_progress',
-  closed: 'notif.status.closed',
-};
-
-const EXP_KEY: Record<InquiryStatus, 'notif.exp.new' | 'notif.exp.in_progress' | 'notif.exp.closed'> = {
-  new: 'notif.exp.new',
-  in_progress: 'notif.exp.in_progress',
-  closed: 'notif.exp.closed',
+  deleted: '#C0392B', // red
+  info: '#0B9972', // green
 };
 
 export function NotificationsBell() {
@@ -64,20 +47,20 @@ export function NotificationsBell() {
       {open && (
         <div className="notif-panel">
           <div className="notif-head"><b>{t('notif.title')}</b></div>
-          {vm.list.length === 0 ? (
+          {vm.items.length === 0 ? (
             <div className="muted center" style={{ padding: '24px 12px' }}>{t('notif.empty')}</div>
           ) : (
             <ul className="notif-list">
-              {vm.list.map((n: Inquiry) => (
+              {vm.items.map((n) => (
                 <li key={n.id} className="notif-item">
                   <div className="between" style={{ gap: 8 }}>
-                    <span className="notif-kind">{t(KIND_KEY[n.kind])}</span>
-                    <span className="notif-date muted">{formatDate(n.createdAt)}</span>
+                    <span className="notif-kind">{n.title}</span>
+                    <span className="notif-date muted">{formatDate(n.date)}</span>
                   </div>
-                  {n.message && <div className="notif-msg truncate">{n.message}</div>}
+                  {n.detail && <div className="notif-msg truncate">{n.detail}</div>}
                   <div className="center-row" style={{ gap: 8, marginTop: 6 }}>
-                    <span className="notif-pill" style={{ background: STATUS_COLOR[n.status] }}>{t(STATUS_KEY[n.status])}</span>
-                    <span className="notif-exp muted">{t(EXP_KEY[n.status])}</span>
+                    <span className="notif-pill" style={{ background: TONE_COLOR[n.tone] }}>{n.toneLabel}</span>
+                    {n.exp && <span className="notif-exp muted">{n.exp}</span>}
                   </div>
                 </li>
               ))}

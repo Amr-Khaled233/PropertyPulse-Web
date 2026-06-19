@@ -30,6 +30,9 @@ create table if not exists inquiries (
   property_id  uuid references properties(id) on delete set null,
   created_at   timestamptz not null default now()
 );
+-- Soft-delete: admin "delete" sets this; the row stays so the owner can be
+-- notified that their inquiry was deleted, but it's hidden from the CRM.
+alter table inquiries add column if not exists deleted_at timestamptz;
 create index if not exists idx_inquiries_status on inquiries(status);
 create index if not exists idx_inquiries_kind on inquiries(kind);
 -- No seed rows: inquiries should only come from real submissions via the

@@ -15,13 +15,15 @@ interface InquiryRow {
   message: string | null;
   property_id: string | null;
   created_at: string;
+  deleted_at: string | null;
 }
 
 function toInquiry(row: InquiryRow): Inquiry {
   return {
     id: row.id,
     kind: row.kind,
-    status: row.status,
+    // A soft-deleted inquiry surfaces to its owner as a 'deleted' notification.
+    status: row.deleted_at ? 'deleted' : row.status,
     name: row.name,
     email: row.email ?? undefined,
     phone: row.phone ?? undefined,
@@ -42,10 +44,18 @@ export const adminRepository = {
   },
 
   async listInquiries(): Promise<Inquiry[]> {
-    const { data, error } = await supabase
+    let { data, error } = await supabase
       .from('inquiries')
       .select('*')
+      .is('deleted_at', null) // hide soft-deleted inquiries from the CRM
       .order('created_at', { ascending: false });
+    // Fall back gracefully if the deleted_at column hasn't been migrated yet.
+    if (error && /deleted_at/i.test(error.message)) {
+      ({ data, error } = await supabase
+        .from('inquiries')
+        .select('*')
+        .order('created_at', { ascending: false }));
+    }
     if (error) throw new ApiError(500, 'INQUIRIES_FETCH_FAILED', error.message);
     return (data as InquiryRow[]).map(toInquiry);
   },
@@ -94,5 +104,39 @@ export const adminRepository = {
       .single();
     if (error) throw new ApiError(500, 'INQUIRY_UPDATE_FAILED', error.message);
     return toInquiry(data as InquiryRow);
+  },
+
+  /** Soft-delete an inquiry (kept so the owner still gets a 'deleted' notice). */
+  async deleteInquiry(id: string): Promise<Inquiry> {
+    const { data, error } = await supabase
+      .from('inquiries')
+      .update({ deleted_at: new Date().toISOString() })
+      .eq('id', id)
+      .select('*')
+      .single();
+    if (error) throw new ApiError(500, 'INQUIRY_DELETE_FAILED', error.message);
+    return toInquiry(data as InquiryRow);
+  },
+
+  /** Update a user's plan and/or role. */
+  async updateUser(id: string, patch: { plan?: UserProfile['plan']; role?: UserProfile['role'] }): Promise<UserProfile> {
+    const update: Record<string, unknown> = {};
+    if (patch.plan !== undefined) update.plan = patch.plan;
+    if (patch.role !== undefined) update.role = patch.role;
+    const { data, error } = await supabase
+      .from('profiles')
+      .update(update)
+      .eq('id', id)
+      .select('*')
+      .single();
+    if (error) throw new ApiError(500, 'USER_UPDATE_FAILED', error.message);
+    return toUserProfile(data as ProfileRow);
+  },
+
+  /** Permanently delete a user (auth account + profile row). */
+  async deleteUser(id: string): Promise<void> {
+    const { error: authErr } = await supabase.auth.admin.deleteUser(id);
+    if (authErr) throw new ApiError(500, 'USER_DELETE_FAILED', authErr.message);
+    await supabase.from('profiles').delete().eq('id', id);
   },
 };

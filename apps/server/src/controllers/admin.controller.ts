@@ -9,6 +9,15 @@ export const adminController = {
     ok(res, await adminService.listUsers());
   }),
 
+  updateUser: asyncHandler(async (req, res) => {
+    ok(res, await adminService.updateUser(req.params.id, { plan: req.body.plan, role: req.body.role }));
+  }),
+
+  deleteUser: asyncHandler(async (req, res) => {
+    await adminService.deleteUser(req.params.id);
+    ok(res, { id: req.params.id, deleted: true });
+  }),
+
   createProperty: asyncHandler(async (req, res) => {
     created(res, await adminService.createProperty(req.body));
   }),
@@ -28,5 +37,10 @@ export const adminController = {
 
   setInquiryStatus: asyncHandler(async (req, res) => {
     ok(res, await adminService.setInquiryStatus(req.params.id, req.body.status));
+  }),
+
+  deleteInquiry: asyncHandler(async (req, res) => {
+    await adminService.deleteInquiry(req.params.id);
+    ok(res, { id: req.params.id, deleted: true });
   }),
 };
