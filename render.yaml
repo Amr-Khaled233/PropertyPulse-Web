@@ -15,7 +15,7 @@ services:
       - key: NODE_ENV
         value: production
       - key: GEMINI_MODEL
-        value: gemini-2.0-flash
+        value: gemini-2.5-pro
       # Set these in the Render dashboard (sync:false keeps them out of git):
       - key: CORS_ORIGIN            # e.g. https://property-pulse-web.vercel.app
         sync: false
