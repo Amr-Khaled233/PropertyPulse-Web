@@ -15,8 +15,8 @@ export function LoginPage() {
   const { loading, error, errorFor, submitLogin } = useAuthViewModel();
   const loginWithGoogle = useAuthStore((s) => s.loginWithGoogle);
   const { t } = useI18n();
-  const [email, setEmail] = useState('investor@propertypulse.app');
-  const [password, setPassword] = useState('password');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   return (
     <div className="auth-page">
@@ -58,6 +58,7 @@ export function LoginPage() {
             label={t('common.email')}
             type="email"
             name="email"
+            placeholder="you@example.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             error={errorFor('email')}
@@ -66,6 +67,7 @@ export function LoginPage() {
             label={t('common.password')}
             type="password"
             name="password"
+            placeholder="••••••••"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             error={errorFor('password')}
@@ -82,9 +84,6 @@ export function LoginPage() {
 
           <p className="muted center" style={{ margin: 0 }}>
             {t('auth.noAccount')} <Link to={ROUTES.register} className="accent">{t('common.signUp')}</Link>
-          </p>
-          <p className="muted center" style={{ fontSize: '0.78rem', margin: 0 }}>
-            Demo: any email works. Use <b>admin@propertypulse.app</b> for the admin dashboard.
           </p>
         </form>
       </div>
