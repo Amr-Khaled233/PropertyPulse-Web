@@ -10,6 +10,8 @@ export interface LlmMessage {
 
 /** Tunable parameters for a single generation call. */
 export interface GenerationOptions {
+  /** Override the model for this call (else the server's default model). */
+  model?: string;
   /** System instruction that steers the model's behaviour. */
   system?: string;
   /** 0 = deterministic, higher = more creative. */

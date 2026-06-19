@@ -8,6 +8,7 @@ import { retrieve } from '../ai/rag/retriever.js';
 import { buildMarketContext } from '../ai/chatContext.js';
 import { geminiClient } from '../ai/llm/geminiClient.js';
 import { buildQaPrompt } from '../ai/llm/prompts/qa.prompt.js';
+import { env } from '../config/env.js';
 import { logger } from '../utils/logger.js';
 
 export const chatController = {
@@ -27,7 +28,11 @@ export const chatController = {
 
     const prompt = buildQaPrompt({ question, context, history, lang });
     try {
-      const answer = await geminiClient.generate(prompt.user, { system: prompt.system, temperature: 0.3 });
+      const answer = await geminiClient.generate(prompt.user, {
+        model: env.GEMINI_CHAT_MODEL, // chat uses the faster/cheaper flash model
+        system: prompt.system,
+        temperature: 0.3,
+      });
       ok(res, { answer, sources: retrieval.sources });
     } catch (err) {
       // The AI model is unavailable (quota/outage). Don't fail — return the real
