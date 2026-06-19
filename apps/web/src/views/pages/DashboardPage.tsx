@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { useDashboardViewModel } from '../../viewmodels/useDashboardViewModel';
 import { useI18n } from '../../i18n';
 import { ROUTES } from '../../routes/routes';
+import { useAuthStore } from '../../store/authStore';
 import { formatCompactCurrency } from '../../utils/formatters';
 import { RentalYieldCard } from '../components/analysis/RentalYieldCard';
 import { Loader } from '../components/common/Loader';
@@ -12,12 +13,16 @@ import { AdvisorPanel } from '../components/chat/AdvisorPanel';
 export function DashboardPage() {
   const vm = useDashboardViewModel();
   const { t } = useI18n();
+  const plan = useAuthStore((s) => s.user?.plan ?? 'free');
 
   return (
     <div className="row wrap" style={{ gap: 22, alignItems: 'flex-start' }}>
       <div className="grow col" style={{ gap: 22, minWidth: 280 }}>
         <div>
-          <h2 style={{ marginBottom: 2 }}>{t('dash.title')}</h2>
+          <div className="center-row" style={{ gap: 10 }}>
+            <h2 style={{ marginBottom: 2 }}>{t('dash.title')}</h2>
+            <Link to={ROUTES.pricing} className={`plan-chip plan-chip-${plan}`}>{plan.toUpperCase()}</Link>
+          </div>
           <p className="muted" style={{ margin: 0 }}>{t('dash.welcome')}</p>
         </div>
 

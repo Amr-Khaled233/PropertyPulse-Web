@@ -627,6 +627,15 @@ a { color: inherit; text-decoration: none; }
   letter-spacing: 0.08em; text-transform: uppercase; padding: 4px 12px;
   border-radius: var(--radius-pill); white-space: nowrap;
 }
+.plan-current { border-color: var(--green); box-shadow: 0 0 0 2px var(--green-100); opacity: 0.96; }
+.plan-current .plan-card, .plan-current { cursor: default; }
+.plan-badge-current { background: var(--navy); }
+.checkout-active { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+/* Plan badge shown next to the dashboard title (links to pricing). */
+.plan-chip { display: inline-flex; align-items: center; padding: 3px 11px; border-radius: var(--radius-pill); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; text-decoration: none; }
+.plan-chip-free { background: var(--surface-alt); color: var(--text-muted); }
+.plan-chip-pro { background: var(--green); color: #fff; }
+.plan-chip-enterprise { background: var(--navy); color: #fff; }
 .plan-tier { font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); font-weight: 600; }
 .plan-name { margin: 2px 0 10px; font-size: 1.35rem; }
 .plan-price { font-family: var(--font-head); font-size: 2.1rem; font-weight: 600; line-height: 1.1; }

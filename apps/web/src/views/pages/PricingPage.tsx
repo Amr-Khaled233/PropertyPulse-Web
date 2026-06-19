@@ -47,13 +47,23 @@ export function PricingPage() {
         <div className="plan-grid">
           {vm.plans.map((plan) => {
             const active = vm.selectedId === plan.id;
+            const isCurrent = plan.id === vm.currentPlan;
+            const ctaText = isCurrent
+              ? t('pricing.currentPlan')
+              : plan.id === 'free'
+                ? t('pricing.included')
+                : t('pricing.upgradeNow');
             return (
               <div
                 key={plan.id}
-                className={`card plan-card${plan.popular ? ' plan-popular' : ''}${active ? ' plan-active' : ''}`}
-                onClick={() => vm.selectPlan(plan.id)}
+                className={`card plan-card${plan.popular ? ' plan-popular' : ''}${active ? ' plan-active' : ''}${isCurrent ? ' plan-current' : ''}`}
+                onClick={() => { if (!isCurrent) vm.selectPlan(plan.id); }}
               >
-                {plan.popular && <span className="plan-badge">{t('pricing.mostPopular')}</span>}
+                {isCurrent ? (
+                  <span className="plan-badge plan-badge-current">✓ {t('pricing.activePlan')}</span>
+                ) : (
+                  plan.popular && <span className="plan-badge">{t('pricing.mostPopular')}</span>
+                )}
                 <div className="plan-tier">{t(plan.tierKey)}</div>
                 <h3 className="plan-name">{t(plan.nameKey)}</h3>
                 <div className="plan-price">{money(plan.price)}</div>
@@ -64,11 +74,12 @@ export function PricingPage() {
                   ))}
                 </ul>
                 <Button
-                  variant={plan.popular ? 'green' : 'outline'}
+                  variant={isCurrent || plan.id === 'free' ? 'outline' : 'green'}
                   block
-                  onClick={(e) => { e.stopPropagation(); vm.selectPlan(plan.id); }}
+                  disabled={isCurrent || plan.id === 'free'}
+                  onClick={(e) => { e.stopPropagation(); if (!isCurrent) vm.selectPlan(plan.id); }}
                 >
-                  {t(plan.ctaKey)}
+                  {ctaText}
                 </Button>
               </div>
             );
@@ -78,6 +89,13 @@ export function PricingPage() {
         {/* Secure checkout (Stripe) */}
         <aside className="card card-pad checkout">
           <h3 style={{ marginBottom: 14 }}>{t('pricing.checkout')}</h3>
+
+          {vm.currentPlan !== 'free' && (
+            <div className="checkout-active">
+              <span className="muted">{t('pricing.activePlan')}</span>
+              <span className="badge badge-green">{vm.currentPlan.toUpperCase()}</span>
+            </div>
+          )}
 
           <div className="checkout-plan">
             <div>
@@ -99,11 +117,17 @@ export function PricingPage() {
           <Button
             variant="green"
             block
-            disabled={vm.processing || selected.price === 0}
+            disabled={vm.processing || selected.price === 0 || selected.id === vm.currentPlan}
             onClick={() => void vm.subscribe(planLabel)}
             style={{ marginTop: 16 }}
           >
-            {vm.processing ? t('common.loading') : selected.price === 0 ? t('pricing.currentPlan') : t('pricing.payStripe')}
+            {vm.processing
+              ? t('common.loading')
+              : selected.id === vm.currentPlan
+                ? t('pricing.alreadySubscribed')
+                : selected.price === 0
+                  ? t('pricing.currentPlan')
+                  : t('pricing.payStripe')}
           </Button>
 
           <div className="center muted secured">🔒 {t('pricing.secured')}</div>

@@ -103,6 +103,7 @@ export function usePaymentViewModel() {
 
   return {
     plans: PLANS,
+    currentPlan: (user?.plan ?? 'free') as PlanId,
     selected,
     selectedId,
     selectPlan: setSelectedId,
