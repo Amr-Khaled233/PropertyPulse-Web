@@ -27,7 +27,13 @@ interface NarrativeResponse {
 const levelFor = (score: number): RiskLevel => (score < 34 ? 'low' : score < 67 ? 'moderate' : 'high');
 
 /** Deterministic risk assessment from the metrics (used when the LLM is down). */
-function fallbackRisk(metrics: InvestmentMetrics, pricePositionPct: number, verdictScore: number): RiskAssessment {
+function fallbackRisk(
+  metrics: InvestmentMetrics,
+  pricePositionPct: number,
+  verdictScore: number,
+  lang?: 'en' | 'ar',
+): RiskAssessment {
+  const ar = lang === 'ar';
   const overallScore = Math.max(8, Math.min(92, 100 - verdictScore));
   const pricingLevel = levelFor(Math.min(95, Math.max(0, 40 + pricePositionPct)));
   const cashLevel: RiskLevel = metrics.monthlyCashFlow >= 0 ? 'low' : 'moderate';
@@ -36,30 +42,42 @@ function fallbackRisk(metrics: InvestmentMetrics, pricePositionPct: number, verd
     score: Math.round(overallScore),
     factors: [
       {
-        name: 'Pricing vs market',
+        name: ar ? 'التسعير مقابل السوق' : 'Pricing vs market',
         level: pricingLevel,
         weight: 0.4,
         explanation:
           pricePositionPct > 5
-            ? `Priced ${pricePositionPct.toFixed(0)}% above comparable listings — limited margin of safety.`
+            ? ar
+              ? `مسعّر أعلى من العقارات المماثلة بنسبة ${pricePositionPct.toFixed(0)}% — هامش أمان محدود.`
+              : `Priced ${pricePositionPct.toFixed(0)}% above comparable listings — limited margin of safety.`
             : pricePositionPct < -5
-              ? `Priced ${Math.abs(pricePositionPct).toFixed(0)}% below comparables — favourable entry.`
-              : 'Priced in line with comparable listings.',
+              ? ar
+                ? `مسعّر أقل من المماثلات بنسبة ${Math.abs(pricePositionPct).toFixed(0)}% — نقطة دخول مواتية.`
+                : `Priced ${Math.abs(pricePositionPct).toFixed(0)}% below comparables — favourable entry.`
+              : ar
+                ? 'مسعّر بما يتوافق مع العقارات المماثلة.'
+                : 'Priced in line with comparable listings.',
       },
       {
-        name: 'Cash flow',
+        name: ar ? 'التدفق النقدي' : 'Cash flow',
         level: cashLevel,
         weight: 0.35,
         explanation:
           metrics.monthlyCashFlow >= 0
-            ? 'Projected positive monthly cash flow under the base assumptions.'
-            : 'Negative monthly cash flow under leverage; returns rely on appreciation.',
+            ? ar
+              ? 'تدفق نقدي شهري موجب متوقّع وفق الافتراضات الأساسية.'
+              : 'Projected positive monthly cash flow under the base assumptions.'
+            : ar
+              ? 'تدفق نقدي شهري سالب مع التمويل؛ العوائد تعتمد على ارتفاع الأسعار.'
+              : 'Negative monthly cash flow under leverage; returns rely on appreciation.',
       },
       {
-        name: 'Market & liquidity',
+        name: ar ? 'السوق والسيولة' : 'Market & liquidity',
         level: 'moderate',
         weight: 0.25,
-        explanation: 'Egyptian market: strong nominal appreciation but currency / rate volatility.',
+        explanation: ar
+          ? 'السوق المصري: ارتفاع اسمي قوي للأسعار لكن مع تقلّب في العملة وأسعار الفائدة.'
+          : 'Egyptian market: strong nominal appreciation but currency / rate volatility.',
       },
     ],
   };
@@ -121,14 +139,14 @@ export async function generateReport(params: {
   // 1) Risk — LLM if available, else a grounded deterministic assessment.
   let risk: RiskAssessment;
   try {
-    const riskPrompt = buildRiskAssessmentPrompt({ property, metrics, context });
+    const riskPrompt = buildRiskAssessmentPrompt({ property, metrics, context, lang });
     risk = await geminiClient.generateJSON<RiskAssessment>(riskPrompt.user, {
       system: riskPrompt.system,
       temperature: 0.2,
     });
   } catch (err) {
     logger.warn({ err }, 'Risk LLM unavailable — using deterministic fallback');
-    risk = fallbackRisk(metrics, market.pricePositionPct, verdict.score);
+    risk = fallbackRisk(metrics, market.pricePositionPct, verdict.score, lang);
   }
 
   // 2) Narrative — LLM if available, else a grounded template.

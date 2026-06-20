@@ -7,6 +7,7 @@ export interface RiskAssessmentPromptInput {
   property: Property;
   metrics: InvestmentMetrics;
   context: string;
+  lang?: 'en' | 'ar';
 }
 
 export interface RiskAssessmentPromptOutput {
@@ -17,7 +18,7 @@ export interface RiskAssessmentPromptOutput {
 export function buildRiskAssessmentPrompt(
   input: RiskAssessmentPromptInput,
 ): RiskAssessmentPromptOutput {
-  const { property, metrics, context } = input;
+  const { property, metrics, context, lang } = input;
 
   const system = [
     'You are a real-estate risk analyst.',
@@ -25,6 +26,11 @@ export function buildRiskAssessmentPrompt(
     'Respond ONLY with JSON matching:',
     '{ "overall": "low"|"moderate"|"high", "score": number (0-100, higher = riskier),',
     '"factors": [ { "name": string, "level": "low"|"moderate"|"high", "weight": number (0-1), "explanation": string } ] }',
+    // Keep the "level"/"overall" values as the exact English enums, but write the
+    // human-readable "name" and "explanation" fields in the requested language.
+    lang === 'ar'
+      ? 'Write every "name" and "explanation" value in Arabic. Keep "level" and "overall" as the English enum values.'
+      : 'Write "name" and "explanation" in English.',
   ].join(' ');
 
   const user = `
