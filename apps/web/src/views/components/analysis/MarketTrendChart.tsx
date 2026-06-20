@@ -36,13 +36,13 @@ export function MarketTrendChart({ data, height = 260 }: Props) {
           dataKey="period"
           tickFormatter={fmtMonth}
           interval={0}
-          angle={-35}
+          angle={-45}
           textAnchor="end"
-          height={64}
+          height={90}
           tick={{ fontSize: 10, fill: 'var(--text-muted)' }}
           tickLine={false}
           axisLine={false}
-          tickMargin={14}
+          tickMargin={20}
         />
         <YAxis tickFormatter={compact} tick={{ fontSize: 11, fill: 'var(--text-muted)' }} tickLine={false} axisLine={false} width={52} />
         <Tooltip
