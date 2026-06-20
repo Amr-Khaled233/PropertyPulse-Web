@@ -20,6 +20,14 @@ function compactMoney(value: number, currency = 'EGP'): string {
 }
 const pct = (v: number): string => `${v.toFixed(1)}%`;
 
+const UUID_RE = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi;
+
+/** Replace any property UUIDs in text with their titles; strip unknown UUIDs. */
+function sanitize(text: string, candidates: ComparisonResult['candidates']): string {
+  const idToTitle = new Map(candidates.map((c) => [c.property.id.toLowerCase(), c.property.title]));
+  return text.replace(UUID_RE, (match) => idToTitle.get(match.toLowerCase()) ?? '');
+}
+
 export function CompareResult({ result }: { result: ComparisonResult }) {
   const { t } = useI18n();
 
@@ -32,7 +40,10 @@ export function CompareResult({ result }: { result: ComparisonResult }) {
     if (ra !== rb) return ra - rb;
     return b.score - a.score;
   });
-  const rationaleOf = (id: string) => result.ranking.find((r) => r.propertyId === id)?.rationale;
+  const rationaleOf = (id: string) => {
+    const raw = result.ranking.find((r) => r.propertyId === id)?.rationale;
+    return raw ? sanitize(raw, result.candidates) : undefined;
+  };
 
   return (
     <div className="col" style={{ gap: 14 }}>
@@ -40,7 +51,7 @@ export function CompareResult({ result }: { result: ComparisonResult }) {
       {result.verdict && (
         <div className="cmp-verdict" style={{ background: NAVY }}>
           <span className="cmp-verdict-eyebrow" style={{ color: EMERALD }}>{t('compare.verdict')}</span>
-          <p className="cmp-verdict-text">{result.verdict}</p>
+          <p className="cmp-verdict-text">{sanitize(result.verdict, result.candidates)}</p>
         </div>
       )}
 
