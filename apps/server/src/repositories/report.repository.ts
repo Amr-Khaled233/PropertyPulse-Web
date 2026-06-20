@@ -37,6 +37,15 @@ export const reportRepository = {
     return count ?? 0;
   },
 
+  async delete(id: string, userId: string): Promise<void> {
+    const { error } = await supabase
+      .from('investment_reports')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', userId);
+    if (error) throw new ApiError(500, 'REPORT_DELETE_FAILED', error.message);
+  },
+
   async listForUser(userId: string): Promise<InvestmentReport[]> {
     const { data, error } = await supabase
       .from('investment_reports')

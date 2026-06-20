@@ -10,7 +10,7 @@ import { Loader } from '../components/common/Loader';
 import { ReportViewer } from '../components/report/ReportViewer';
 
 function ReportList() {
-  const { loading, reports } = useReportListViewModel();
+  const { loading, reports, deleteReport } = useReportListViewModel();
   const { t } = useI18n();
 
   if (loading) return <Loader full />;
@@ -19,20 +19,27 @@ function ReportList() {
   return (
     <div className="grid grid-2">
       {reports.map((r) => (
-        <Link key={r.id} to={ROUTES.report(r.id)}>
-          <div className="card card-pad card-hover">
-            <div className="between">
-              <span className="badge" style={{ background: RECOMMENDATION_COLORS[r.recommendation], color: '#fff' }}>
-                {RECOMMENDATION_LABELS[r.recommendation]}
-              </span>
+        <div key={r.id} className="card card-pad card-hover">
+          <div className="between">
+            <span className="badge" style={{ background: RECOMMENDATION_COLORS[r.recommendation], color: '#fff' }}>
+              {RECOMMENDATION_LABELS[r.recommendation]}
+            </span>
+            <div className="center-row" style={{ gap: 8 }}>
               <span className="muted" style={{ fontSize: '0.8rem' }}>{formatDate(r.generatedAt)}</span>
+              <button
+                className="icon-btn icon-btn-sm danger"
+                title={t('reports.delete')}
+                onClick={() => { if (confirm(t('reports.deleteConfirm'))) deleteReport(r.id); }}
+              >🗑</button>
             </div>
+          </div>
+          <Link to={ROUTES.report(r.id)} style={{ display: 'block', color: 'inherit' }}>
             <p className="muted" style={{ marginTop: 12, marginBottom: 8 }}>{r.summary}</p>
             <span className="muted" style={{ fontSize: '0.82rem' }}>
               {t('reports.confidence')}: {Math.round(r.confidence * 100)}%
             </span>
-          </div>
-        </Link>
+          </Link>
+        </div>
       ))}
     </div>
   );

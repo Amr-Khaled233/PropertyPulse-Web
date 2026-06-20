@@ -61,4 +61,11 @@ export const reportService = {
   listForUser(userId: string): Promise<InvestmentReport[]> {
     return reportRepository.listForUser(userId);
   },
+
+  async deleteReport(id: string, userId: string): Promise<void> {
+    const report = await reportRepository.getById(id);
+    if (!report) throw ApiError.notFound('Report not found');
+    if (report.userId !== userId) throw ApiError.unauthorized('Not your report');
+    await reportRepository.delete(id, userId);
+  },
 };

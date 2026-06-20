@@ -202,6 +202,8 @@ export const translations = {
     'reports.empty': 'No reports yet. Generate one from a property.',
     'reports.recommendation': 'Recommendation',
     'reports.confidence': 'Confidence',
+    'reports.deleteConfirm': 'Delete this report?',
+    'reports.delete': 'Delete report',
 
     'admin.title': 'Admin Dashboard',
     'admin.users': 'Users',
@@ -572,6 +574,8 @@ export const translations = {
 
     'reports.title': 'تقارير الاستثمار',
     'reports.empty': 'لا توجد تقارير بعد. أنشئ تقريراً من عقار.',
+    'reports.deleteConfirm': 'حذف هذا التقرير؟',
+    'reports.delete': 'حذف التقرير',
     'reports.recommendation': 'التوصية',
     'reports.confidence': 'الثقة',
 
