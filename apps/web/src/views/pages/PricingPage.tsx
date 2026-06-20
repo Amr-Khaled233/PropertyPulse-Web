@@ -29,7 +29,6 @@ export function PricingPage() {
       pushToast('Payment canceled.', 'info');
       setParams({}, { replace: true });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const planLabel = `PropertyPulse ${t(selected.nameKey)}`;
   const money = (n: number, dec = false) =>
