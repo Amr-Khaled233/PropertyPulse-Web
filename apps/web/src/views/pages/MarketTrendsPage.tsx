@@ -13,8 +13,6 @@ export function MarketTrendsPage() {
 
   if (loading || !data) return <Loader full />;
 
-  const maxDistrict = Math.max(...data.topDistricts.map((d) => d.count), 1);
-
   return (
     <div className="col" style={{ gap: 22 }}>
       <div className="grid grid-3">
@@ -83,7 +81,7 @@ export function MarketTrendsPage() {
                   <span className="muted">{formatNumber(r.count)} · {r.sharePct}%</span>
                 </div>
                 <div className="meter" style={{ marginTop: 4 }}>
-                  <span style={{ width: `${Math.round((r.count / maxDistrict) * 100)}%` }} />
+                  <span style={{ width: `${r.sharePct}%` }} />
                 </div>
               </div>
             ))}
