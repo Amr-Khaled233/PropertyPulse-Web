@@ -20,12 +20,23 @@ function compactMoney(value: number, currency = 'EGP'): string {
 }
 const pct = (v: number): string => `${v.toFixed(1)}%`;
 
-const UUID_RE = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi;
+const FULL_UUID_RE = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi;
+// Matches the parenthesised short form the AI produces: (ee7977ed)
+const SHORT_UUID_PARENS_RE = /\(([0-9a-f]{8})\)/gi;
 
-/** Replace any property UUIDs in text with their titles; strip unknown UUIDs. */
+/** Replace any property UUIDs (full or shortened) in text with their titles. */
 function sanitize(text: string, candidates: ComparisonResult['candidates']): string {
-  const idToTitle = new Map(candidates.map((c) => [c.property.id.toLowerCase(), c.property.title]));
-  return text.replace(UUID_RE, (match) => idToTitle.get(match.toLowerCase()) ?? '');
+  const idToTitle = new Map<string, string>();
+  for (const c of candidates) {
+    const id = c.property.id.toLowerCase();
+    idToTitle.set(id, c.property.title);
+    idToTitle.set(id.slice(0, 8), c.property.title);
+  }
+  // Replace full UUIDs first
+  let out = text.replace(FULL_UUID_RE, (m) => idToTitle.get(m.toLowerCase()) ?? '');
+  // Replace (xxxxxxxx) short form — drop the parens, use title or empty string
+  out = out.replace(SHORT_UUID_PARENS_RE, (_, hex) => idToTitle.get(hex.toLowerCase()) ?? '');
+  return out;
 }
 
 export function CompareResult({ result }: { result: ComparisonResult }) {
