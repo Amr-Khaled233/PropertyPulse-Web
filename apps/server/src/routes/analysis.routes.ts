@@ -12,4 +12,6 @@ export const analysisRouter = Router();
 analysisRouter.post('/metrics', validate(computeMetricsSchema), analysisController.computeMetrics);
 // Compare is auth-gated so the free-plan quota can be enforced per user.
 analysisRouter.post('/compare', requireAuth, aiLimiter, validate(compareSchema), analysisController.compare);
+analysisRouter.get('/comparisons', requireAuth, analysisController.listComparisons);
+analysisRouter.delete('/comparisons/:id', requireAuth, analysisController.deleteComparison);
 analysisRouter.post('/negotiation', aiLimiter, validate(negotiationSchema), analysisController.negotiation);

@@ -1,13 +1,16 @@
 // Reports page (View) — list of generated reports + single report viewer.
 
+import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { useReportListViewModel, useReportViewModel } from '../../viewmodels/useReportViewModel';
+import { useReportListViewModel, useReportViewModel, useComparisonsViewModel } from '../../viewmodels/useReportViewModel';
 import { useI18n } from '../../i18n';
 import { ROUTES } from '../../routes/routes';
 import { RECOMMENDATION_LABELS, RECOMMENDATION_COLORS } from '../../utils/constants';
 import { formatDate } from '../../utils/formatters';
 import { Loader } from '../components/common/Loader';
 import { ReportViewer } from '../components/report/ReportViewer';
+import { CompareResult } from '../components/property/CompareResult';
+import { Button } from '../components/common/Button';
 
 function ReportList() {
   const { loading, reports, deleteReport } = useReportListViewModel();
@@ -45,6 +48,46 @@ function ReportList() {
   );
 }
 
+function ComparisonList() {
+  const { loading, comparisons, deleteComparison } = useComparisonsViewModel();
+  const { t } = useI18n();
+  const [openId, setOpenId] = useState<string | null>(null);
+
+  if (loading || !comparisons.length) return null; // hide the section until there's something to show
+
+  return (
+    <div className="col" style={{ gap: 12, marginTop: 10 }}>
+      <h3 style={{ margin: 0 }}>{t('reports.comparisons')}</h3>
+      {comparisons.map((c) => {
+        const open = openId === c.id;
+        return (
+          <div key={c.id} className="card card-pad">
+            <div className="between" style={{ gap: 10 }}>
+              <div style={{ minWidth: 0 }}>
+                <b className="serif truncate" style={{ display: 'block' }}>
+                  {c.result.verdict || `${c.result.candidates.length} ✕`}
+                </b>
+                <span className="muted" style={{ fontSize: '0.8rem' }}>{formatDate(c.createdAt)}</span>
+              </div>
+              <div className="center-row" style={{ gap: 8, flexShrink: 0 }}>
+                <Button variant="outline" size="sm" onClick={() => setOpenId(open ? null : c.id)}>
+                  {t('reports.viewComparison')}
+                </Button>
+                <button
+                  className="icon-btn icon-btn-sm danger"
+                  title={t('reports.delete')}
+                  onClick={() => { if (confirm(t('reports.comparisonDeleteConfirm'))) deleteComparison(c.id); }}
+                >🗑</button>
+              </div>
+            </div>
+            {open && <div style={{ marginTop: 14 }}><CompareResult result={c.result} /></div>}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 function SingleReport({ id }: { id: string }) {
   const { loading, report } = useReportViewModel(id);
   if (loading || !report) return <Loader full />;
@@ -62,7 +105,7 @@ export function ReportPage() {
   return (
     <div className="col" style={{ gap: 18 }}>
       {!id && <h2 style={{ margin: 0 }}>{t('reports.title')}</h2>}
-      {id ? <SingleReport id={id} /> : <ReportList />}
+      {id ? <SingleReport id={id} /> : (<><ReportList /><ComparisonList /></>)}
     </div>
   );
 }

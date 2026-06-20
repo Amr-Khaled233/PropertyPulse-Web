@@ -46,3 +46,14 @@ create table if not exists usage_events (
   created_at  timestamptz not null default now()
 );
 create index if not exists idx_usage_user_kind on usage_events(user_id, kind, created_at);
+
+-- ---------- Saved AI comparisons ----------
+-- Persists each AI Compare a user runs so they can revisit and delete them.
+create table if not exists comparisons (
+  id           uuid primary key default uuid_generate_v4(),
+  user_id      uuid not null references profiles(id) on delete cascade,
+  property_ids jsonb not null,
+  result       jsonb not null,          -- the full ComparisonResult (candidates, ranking, verdict)
+  created_at   timestamptz not null default now()
+);
+create index if not exists idx_comparisons_user on comparisons(user_id, created_at desc);

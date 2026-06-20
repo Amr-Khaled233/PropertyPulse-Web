@@ -6,6 +6,7 @@ import { propertyService } from './property.service.js';
 import { propertyRepository } from '../repositories/property.repository.js';
 import { userRepository } from '../repositories/user.repository.js';
 import { usageRepository } from '../repositories/usage.repository.js';
+import { comparisonRepository, type SavedComparison } from '../repositories/comparison.repository.js';
 import { calculateMetrics, type AssumptionOverrides } from '../ai/agents/calculationAgent.js';
 import { geminiClient } from '../ai/llm/geminiClient.js';
 import { ApiError } from '../utils/apiError.js';
@@ -225,8 +226,22 @@ export const analysisService = {
       }
     }
 
-    if (userId) await usageRepository.log(userId, 'compare').catch(() => {});
-    return { candidates: out, ranking, verdict };
+    const result: ComparisonResult = { candidates: out, ranking, verdict };
+    if (userId) {
+      await usageRepository.log(userId, 'compare').catch(() => {});
+      // Persist the comparison so the user can revisit it (best-effort).
+      void comparisonRepository.create(userId, propertyIds, result).catch(() => {});
+    }
+    return result;
+  },
+
+  /** A user's saved comparisons (most recent first). */
+  listComparisons(userId: string): Promise<SavedComparison[]> {
+    return comparisonRepository.listForUser(userId);
+  },
+
+  deleteComparison(id: string, userId: string): Promise<void> {
+    return comparisonRepository.delete(id, userId);
   },
 
   /** Suggest a fair value + negotiation offer for a property, grounded in real

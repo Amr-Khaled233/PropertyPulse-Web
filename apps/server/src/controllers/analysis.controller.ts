@@ -2,6 +2,7 @@
 
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { ok } from '../utils/apiResponse.js';
+import { ApiError } from '../utils/apiError.js';
 import { analysisService } from '../services/analysis.service.js';
 
 export const analysisController = {
@@ -24,5 +25,18 @@ export const analysisController = {
   negotiation: asyncHandler(async (req, res) => {
     const result = await analysisService.negotiation(req.body.propertyId, req.body.lang);
     ok(res, result);
+  }),
+
+  /** GET /analysis/comparisons — the user's saved comparisons. */
+  listComparisons: asyncHandler(async (req, res) => {
+    if (!req.user) throw ApiError.unauthorized();
+    ok(res, await analysisService.listComparisons(req.user.id));
+  }),
+
+  /** DELETE /analysis/comparisons/:id */
+  deleteComparison: asyncHandler(async (req, res) => {
+    if (!req.user) throw ApiError.unauthorized();
+    await analysisService.deleteComparison(req.params.id, req.user.id);
+    ok(res, { id: req.params.id, deleted: true });
   }),
 };

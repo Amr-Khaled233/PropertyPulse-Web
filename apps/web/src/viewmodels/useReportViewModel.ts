@@ -2,6 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { reportService } from '../services/api/reportService';
+import { analysisService } from '../services/api/analysisService';
 import { useUiStore } from '../store/uiStore';
 import { toErrorMessage } from '../services/api/apiClient';
 import { QUERY_KEYS } from '../utils/constants';
@@ -24,6 +25,27 @@ export function useReportListViewModel() {
     loading: query.isLoading,
     reports: query.data ?? [],
     deleteReport: (id: string) => deleteMut.mutate(id),
+  };
+}
+
+export function useComparisonsViewModel() {
+  const qc = useQueryClient();
+  const pushToast = useUiStore((s) => s.pushToast);
+  const query = useQuery({
+    queryKey: ['comparisons'],
+    queryFn: () => analysisService.listComparisons(),
+  });
+
+  const deleteMut = useMutation({
+    mutationFn: (id: string) => analysisService.deleteComparison(id),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['comparisons'] }); pushToast('Comparison deleted.', 'success'); },
+    onError: (e) => pushToast(toErrorMessage(e), 'error'),
+  });
+
+  return {
+    loading: query.isLoading,
+    comparisons: query.data ?? [],
+    deleteComparison: (id: string) => deleteMut.mutate(id),
   };
 }
 

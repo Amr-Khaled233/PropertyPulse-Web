@@ -18,6 +18,13 @@ export interface ComparisonCandidate {
   reasoning: string[];
 }
 
+export interface SavedComparison {
+  id: string;
+  propertyIds: string[];
+  result: ComparisonResult;
+  createdAt: string;
+}
+
 export interface ComparisonResult {
   candidates: ComparisonCandidate[];
   ranking: { propertyId: string; rank: number; rationale: string }[];
@@ -64,6 +71,16 @@ export const analysisService = {
   async compare(propertyIds: string[], lang = 'en'): Promise<ComparisonResult> {
     const { data } = await apiClient.post<ComparisonResult>('/analysis/compare', { propertyIds, lang });
     return data;
+  },
+
+  /** The user's saved comparisons (most recent first). */
+  async listComparisons(): Promise<SavedComparison[]> {
+    const { data } = await apiClient.get<SavedComparison[]>('/analysis/comparisons');
+    return data;
+  },
+
+  async deleteComparison(id: string): Promise<void> {
+    await apiClient.delete(`/analysis/comparisons/${id}`);
   },
 
   /** AI-grounded negotiation guidance for a single property. */

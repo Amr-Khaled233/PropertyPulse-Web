@@ -208,6 +208,10 @@ export const translations = {
     'reports.confidence': 'Confidence',
     'reports.deleteConfirm': 'Delete this report?',
     'reports.delete': 'Delete report',
+    'reports.comparisons': 'Saved Comparisons',
+    'reports.noComparisons': 'No saved comparisons yet. Run an AI Compare to save one.',
+    'reports.comparisonDeleteConfirm': 'Delete this saved comparison?',
+    'reports.viewComparison': 'View',
 
     'admin.title': 'Admin Dashboard',
     'admin.users': 'Users',
@@ -584,6 +588,10 @@ export const translations = {
     'reports.empty': 'لا توجد تقارير بعد. أنشئ تقريراً من عقار.',
     'reports.deleteConfirm': 'حذف هذا التقرير؟',
     'reports.delete': 'حذف التقرير',
+    'reports.comparisons': 'المقارنات المحفوظة',
+    'reports.noComparisons': 'لا توجد مقارنات محفوظة بعد. شغّل مقارنة بالذكاء الاصطناعي ليتم حفظها.',
+    'reports.comparisonDeleteConfirm': 'حذف هذه المقارنة المحفوظة؟',
+    'reports.viewComparison': 'عرض',
     'reports.recommendation': 'التوصية',
     'reports.confidence': 'الثقة',
 
