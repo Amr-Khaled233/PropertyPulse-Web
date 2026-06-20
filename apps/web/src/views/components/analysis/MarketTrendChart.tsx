@@ -38,11 +38,11 @@ export function MarketTrendChart({ data, height = 260 }: Props) {
           interval={0}
           angle={-35}
           textAnchor="end"
-          height={46}
+          height={64}
           tick={{ fontSize: 10, fill: 'var(--text-muted)' }}
           tickLine={false}
           axisLine={false}
-          tickMargin={6}
+          tickMargin={14}
         />
         <YAxis tickFormatter={compact} tick={{ fontSize: 11, fill: 'var(--text-muted)' }} tickLine={false} axisLine={false} width={52} />
         <Tooltip
