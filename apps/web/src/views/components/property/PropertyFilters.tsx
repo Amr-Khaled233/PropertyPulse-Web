@@ -24,7 +24,7 @@ export function PropertyFilters({ filters, towns, availableTypes, onChange, onRe
 
   return (
     <div className="card card-pad">
-      <div className="grid grid-4" style={{ gap: 12, alignItems: 'end' }}>
+      <div className="filter-grid">
         <div className="field">
           <label className="label">{t('search.city')}</label>
           <select
@@ -92,7 +92,7 @@ export function PropertyFilters({ filters, towns, availableTypes, onChange, onRe
           <input className="input" type="number" value={filters.maxPrice ?? ''} onChange={(e) => onChange({ maxPrice: num(e.target.value) })} />
         </div>
 
-        <button className="btn btn-outline" onClick={onReset} style={{ gridColumn: 'span 2' }}>
+        <button className="btn btn-outline filter-reset" onClick={onReset}>
           {t('search.reset')}
         </button>
       </div>
