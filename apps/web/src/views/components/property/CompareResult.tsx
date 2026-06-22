@@ -20,6 +20,25 @@ function compactMoney(value: number, currency = 'EGP'): string {
 }
 const pct = (v: number): string => `${v.toFixed(1)}%`;
 
+const FULL_UUID_RE = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi;
+// Matches the parenthesised short form the AI produces: (ee7977ed)
+const SHORT_UUID_PARENS_RE = /\(([0-9a-f]{8})\)/gi;
+
+/** Replace any property UUIDs (full or shortened) in text with their titles. */
+function sanitize(text: string, candidates: ComparisonResult['candidates']): string {
+  const idToTitle = new Map<string, string>();
+  for (const c of candidates) {
+    const id = c.property.id.toLowerCase();
+    idToTitle.set(id, c.property.title);
+    idToTitle.set(id.slice(0, 8), c.property.title);
+  }
+  // Replace full UUIDs first
+  let out = text.replace(FULL_UUID_RE, (m) => idToTitle.get(m.toLowerCase()) ?? '');
+  // Replace (xxxxxxxx) short form — drop the parens, use title or empty string
+  out = out.replace(SHORT_UUID_PARENS_RE, (_, hex) => idToTitle.get(hex.toLowerCase()) ?? '');
+  return out;
+}
+
 export function CompareResult({ result }: { result: ComparisonResult }) {
   const { t } = useI18n();
 
@@ -32,7 +51,10 @@ export function CompareResult({ result }: { result: ComparisonResult }) {
     if (ra !== rb) return ra - rb;
     return b.score - a.score;
   });
-  const rationaleOf = (id: string) => result.ranking.find((r) => r.propertyId === id)?.rationale;
+  const rationaleOf = (id: string) => {
+    const raw = result.ranking.find((r) => r.propertyId === id)?.rationale;
+    return raw ? sanitize(raw, result.candidates) : undefined;
+  };
 
   return (
     <div className="col" style={{ gap: 14 }}>
@@ -40,7 +62,7 @@ export function CompareResult({ result }: { result: ComparisonResult }) {
       {result.verdict && (
         <div className="cmp-verdict" style={{ background: NAVY }}>
           <span className="cmp-verdict-eyebrow" style={{ color: EMERALD }}>{t('compare.verdict')}</span>
-          <p className="cmp-verdict-text">{result.verdict}</p>
+          <p className="cmp-verdict-text">{sanitize(result.verdict, result.candidates)}</p>
         </div>
       )}
 

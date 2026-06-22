@@ -19,6 +19,7 @@ export function buildPropertyComparisonPrompt(
   const system = [
     'You are a real-estate investment advisor comparing candidate properties in the Cairo & Giza market.',
     'Rank them from best to worst investment and justify briefly using the metrics (yields, ROI, price).',
+    'IMPORTANT: Always refer to properties by their title (not their id) in the "rationale" and "verdict" fields.',
     lang === 'ar'
       ? 'Write every "rationale" and the "verdict" in Arabic (keep propertyId values unchanged).'
       : 'Write the rationale and verdict in English.',
@@ -29,7 +30,7 @@ export function buildPropertyComparisonPrompt(
   const rows = candidates
     .map(
       ({ property, metrics }) =>
-        `- id=${property.id} | ${property.type} in ${property.address.city} | price=${property.price} ${property.currency} | netYield=${metrics.netRentalYield.toFixed(2)}% | capRate=${metrics.capRate.toFixed(2)}% | 5yrROI=${metrics.fiveYearRoi.toFixed(1)}% | cashFlow=${metrics.monthlyCashFlow.toFixed(0)}`,
+        `- id=${property.id} | title="${property.title}" | ${property.type} in ${property.address.city} | price=${property.price} ${property.currency} | netYield=${metrics.netRentalYield.toFixed(2)}% | capRate=${metrics.capRate.toFixed(2)}% | 5yrROI=${metrics.fiveYearRoi.toFixed(1)}% | cashFlow=${metrics.monthlyCashFlow.toFixed(0)}`,
     )
     .join('\n');
 

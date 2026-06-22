@@ -3,6 +3,7 @@
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import type { MarketTrendPoint } from '@propertypulse/shared-types';
 import { theme } from '../../../styles/theme';
+import { useI18n } from '../../../i18n';
 
 interface Props {
   data: MarketTrendPoint[];
@@ -16,14 +17,17 @@ const compact = (v: number): string => {
   return String(v);
 };
 
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-/** "2026-05-01" → "May 26" so every month label fits on the axis. */
-const fmtMonth = (period: string): string => {
-  const [y, m] = period.split('-');
-  return `${MONTHS[Number(m) - 1] ?? ''} ${y.slice(2)}`;
-};
+const MONTHS_EN = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const MONTHS_AR = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
 
 export function MarketTrendChart({ data, height = 260 }: Props) {
+  const { lang } = useI18n();
+  const months = lang === 'ar' ? MONTHS_AR : MONTHS_EN;
+  /** "2026-05-01" → "May 26" (en) or "مايو 26" (ar) */
+  const fmtMonth = (period: string): string => {
+    const [y, m] = period.split('-');
+    return `${months[Number(m) - 1] ?? ''} ${y.slice(2)}`;
+  };
   return (
     <ResponsiveContainer width="100%" height={height}>
       <LineChart data={data} margin={{ top: 10, right: 16, left: 0, bottom: 14 }}>
@@ -32,13 +36,13 @@ export function MarketTrendChart({ data, height = 260 }: Props) {
           dataKey="period"
           tickFormatter={fmtMonth}
           interval={0}
-          angle={-35}
+          angle={-45}
           textAnchor="end"
-          height={46}
+          height={90}
           tick={{ fontSize: 10, fill: 'var(--text-muted)' }}
           tickLine={false}
           axisLine={false}
-          tickMargin={6}
+          tickMargin={20}
         />
         <YAxis tickFormatter={compact} tick={{ fontSize: 11, fill: 'var(--text-muted)' }} tickLine={false} axisLine={false} width={52} />
         <Tooltip

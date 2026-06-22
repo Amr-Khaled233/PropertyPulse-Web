@@ -195,6 +195,10 @@ export const analysisService = {
       });
       ranking = ai.ranking ?? [];
       verdict = ai.verdict ?? '';
+      // Replace any property IDs the AI leaked into the verdict with their titles.
+      for (const { property } of candidates) {
+        verdict = verdict.replaceAll(property.id, property.title);
+      }
     } catch (err) {
       logger.warn({ err }, 'AI comparison unavailable — using deterministic ranking');
     }
