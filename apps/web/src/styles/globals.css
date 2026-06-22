@@ -488,16 +488,36 @@ a { color: inherit; text-decoration: none; }
   background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
   box-shadow: 0 14px 34px rgba(10, 22, 40, 0.18);
 }
-.notif-head { padding: 14px 16px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--surface); }
+.notif-head { padding: 14px 16px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--surface); z-index: 1; }
 .notif-list { list-style: none; margin: 0; padding: 4px; }
 .notif-item { padding: 12px; border-radius: 10px; }
 .notif-item:hover { background: var(--surface-alt); }
 .notif-item + .notif-item { border-top: 1px solid var(--border); }
-.notif-kind { font-weight: 600; font-size: 0.88rem; }
+.notif-kind { font-weight: 600; font-size: 0.88rem; overflow-wrap: anywhere; }
 .notif-date { font-size: 0.74rem; flex-shrink: 0; }
-.notif-msg { font-size: 0.82rem; color: var(--text-muted); margin-top: 4px; }
+.notif-msg { font-size: 0.82rem; color: var(--text-muted); margin-top: 4px; overflow-wrap: anywhere; }
 .notif-pill { color: #fff; font-size: 0.66rem; font-weight: 700; padding: 2px 9px; border-radius: 999px; flex-shrink: 0; }
-.notif-exp { font-size: 0.76rem; line-height: 1.4; }
+/* The pill + explanation row: let the explanation wrap instead of overflowing. */
+.notif-item .center-row { align-items: flex-start; }
+.notif-exp { font-size: 0.76rem; line-height: 1.4; flex: 1; min-width: 0; }
+
+/* On phones the dropdown becomes a near-full-width sheet under the top bar so it
+   never overflows the viewport or feels cramped. */
+@media (max-width: 560px) {
+  .notif-panel {
+    position: fixed;
+    top: 60px;
+    inset-inline: 10px;
+    width: auto;
+    max-width: none;
+    max-height: 72vh;
+  }
+  .notif-item { padding: 14px 12px; }
+  /* Tighten the top-bar controls so the title + 4 actions fit on small phones. */
+  .topbar .icon-btn { width: 34px; height: 34px; }
+  .topbar .avatar { width: 30px; height: 30px; font-size: 0.76rem; }
+  .topbar > .center-row:last-child { gap: 5px; }
+}
 .negotiate-tips { margin: 0; padding-inline-start: 20px; }
 .negotiate-tips li { margin: 5px 0; line-height: 1.55; }
 .skeleton { background: linear-gradient(90deg, var(--surface-alt) 25%, #ece9e2 50%, var(--surface-alt) 75%); background-size: 200% 100%; animation: sk 1.2s infinite; border-radius: var(--radius-sm); }
