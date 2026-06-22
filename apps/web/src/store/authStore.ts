@@ -5,6 +5,7 @@ import { create } from 'zustand';
 import type { UserProfile } from '@propertypulse/shared-types';
 import { authService } from '../services/api/authService';
 import { setToken } from '../services/api/apiClient';
+import { supabase } from '../services/supabase/supabaseClient';
 
 const SESSION_KEY = 'pp.session';
 
@@ -23,6 +24,9 @@ function saveSession(user: UserProfile | null): void {
 interface AuthState {
   user: UserProfile | null;
   loading: boolean;
+  /** True until the initial session check (incl. an OAuth redirect) resolves.
+   *  Guards routes from bouncing to /login before a Google session is adopted. */
+  initializing: boolean;
   error: string | null;
   isAdmin: () => boolean;
   login: (email: string, password: string) => Promise<boolean>;
@@ -37,6 +41,9 @@ interface AuthState {
 export const useAuthStore = create<AuthState>((set, get) => ({
   user: loadSession(),
   loading: false,
+  // Wait for the Supabase session check only when we have no cached user and
+  // Supabase is configured (e.g. landing back from a Google OAuth redirect).
+  initializing: !loadSession() && !!supabase,
   error: null,
 
   isAdmin: () => get().user?.role === 'admin',

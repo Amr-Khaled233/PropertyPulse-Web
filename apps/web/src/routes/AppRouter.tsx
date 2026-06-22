@@ -7,6 +7,7 @@ import { AppShell } from '../views/components/layout/AppShell';
 import { useI18n } from '../i18n';
 import type { TranslationKey } from '../i18n/translations';
 
+import { Loader } from '../views/components/common/Loader';
 import { LandingPage } from '../views/pages/LandingPage';
 import { LoginPage } from '../views/pages/LoginPage';
 import { RegisterPage } from '../views/pages/RegisterPage';
@@ -26,7 +27,12 @@ import { AdminPage } from '../views/pages/AdminPage';
 
 function RequireAuth() {
   const user = useAuthStore((s) => s.user);
+  const initializing = useAuthStore((s) => s.initializing);
   const location = useLocation();
+  // While a session is still being established (e.g. returning from Google OAuth),
+  // show a loader instead of bouncing to /login — otherwise the user briefly lands
+  // on the sign-in screen before being forwarded on.
+  if (!user && initializing) return <Loader full />;
   if (!user) return <Navigate to={ROUTES.login} state={{ from: location }} replace />;
   if (user.role === 'admin' && !location.pathname.startsWith('/admin')) {
     return <Navigate to={ROUTES.admin} replace />;

@@ -38,7 +38,10 @@ export function App() {
         navigate(user.role === 'admin' ? ROUTES.admin : ROUTES.dashboard, { replace: true });
       }
     };
-    supabase.auth.getSession().then(({ data }) => void adopt(data.session?.access_token));
+    supabase.auth
+      .getSession()
+      .then(({ data }) => adopt(data.session?.access_token))
+      .finally(() => useAuthStore.setState({ initializing: false }));
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
       void adopt(session?.access_token);
     });
